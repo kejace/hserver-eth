@@ -1,0 +1,17 @@
+<h1>FlexExp - the flexible Blockchain Explorer brought to you by BlockApps.net
+
+<p>
+  Most Blockchain explorers are limited to queries involving single block, transaction or account state lookups.
+  Ours will allow some more flexible queries than you are used to. See for yourself!
+
+  Sending us a post at /pquery/ should yield some incomprehensible html, with a reference to a Block!
+
+ <p>
+  Example:
+
+ <p>
+  After it's running, try
+ <break>
+ <center>
+    curl -d "{\"tag\":\"BlkQuery\",\"contents\":{\"tag\":\"ByNumber\",\"number\":17}}" http://localhost:3000/pquery
+  
