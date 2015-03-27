@@ -25,5 +25,5 @@ database:
   database: "_env:PGDATABASE:eth"
   poolsize: "_env:PGPOOLSIZE:10"
 
-copyright: Copyright: BlockApps, 2015
+copyright: BlockApps 2015
 #analytics: UA-YOURCODE
