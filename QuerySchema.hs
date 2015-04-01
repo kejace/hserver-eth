@@ -24,10 +24,10 @@ data Query =      BlkQuery BlockQuery |
 
 
 
-data BlockQuery = -- ByHash { blockHash :: SHA } |
+data BlockQuery = ByHash { blockHash :: SHA } |
                   ByGas { gas :: Integer } |
                   ByGasRange { lowerGas :: Integer, upperGas :: Integer } |
-                  -- ByTX { transaction :: SignedTransaction } |
+                  ByTX { transaction :: SignedTransaction } |
                   ByTimestamp { timestamp :: UTCTime } |
                   ByTimestampRange { lowerTimestamp :: UTCTime, upperTimestamp :: UTCTime } |
                   ByNumber { number :: Integer } |
@@ -36,20 +36,20 @@ data BlockQuery = -- ByHash { blockHash :: SHA } |
                   ByDifficultyRange { lowerDifficulty :: Integer, upperDifficulty :: Integer }
               deriving (Show, Eq, Read, Generic)
                   
-data AccountQuery = -- ByAddress { address :: Address } |
+data AccountQuery = ByAddress { address :: Address } |
                     ByBalance { balance :: Integer } |
                     ByBalanceRange { lowerBalance :: Integer, upperBalance :: Integer } |
                     ByNonce { nonce :: Integer }  |
-                    ByNonceRange { lowerNonce:: Integer, upperNonce :: Integer } -- |
-                --    ByCodeHash { codeHash :: SHA }
+                    ByNonceRange { lowerNonce:: Integer, upperNonce :: Integer } |
+                    ByCodeHash { codeHash :: SHA }
               deriving (Show, Eq, Read, Generic)
 
-data TransactionQuery = -- ByTXHash { txHash :: SHA } |
+data TransactionQuery = ByTXHash { txHash :: SHA } |
                         ByValue { value :: Integer } |
                         ByValueRange { lowerValue :: Integer, upperValue :: Integer } |
-                        ByData { dat :: Integer } -- |
-                        -- ByAddressTo Address |
-                        -- ByAddressFrom Address
+                        ByData { dat :: Integer } |
+                        ByAddressTo { addressTo :: Address } |
+                        ByAddressFrom {addressFrom :: Address }
               deriving (Show, Eq, Read, Generic)
 
 instance FromJSON Query
