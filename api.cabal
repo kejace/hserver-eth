@@ -24,6 +24,16 @@ library
                      Handler.Home
                      Handler.Query
                      Handler.PQuery
+                     Handler.TransactionInfo
+                     Handler.AccountInfo
+                     Handler.BlockInfo
+                     Handler.TxHash
+                     Handler.BlkNumber
+                     Handler.BlkGas
+                     Handler.BlkGasRange
+                     Handler.BlkNumberRange
+                     Handler.AccAddress
+                     Handler.AccNonce
                      QuerySchema
 
     if flag(dev) || flag(library-only)
@@ -85,7 +95,7 @@ library
                  , time
                  , ethereum-data-sql
                  , ethereum-merkle-patricia-db
-
+                 , esqueleto
 executable         api
     if flag(library-only)
         Buildable: False

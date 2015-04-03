@@ -6,3 +6,14 @@
 / HomeR GET POST
 /query/ QueryR GET
 /pquery/ PQueryR POST
+
+/query/transaction TransactionInfoR GET
+/query/block BlockInfoR GET
+/query/account AccountInfoR GET
+/query/transaction/hash/#Integer TxHashR GET
+/query/block/number/#Integer BlkNumberR GET
+/query/block/gas/#Integer BlkGasR GET
+/query/block/gasrange/lower/#Integer/upper/#Integer BlkGasRangeR GET
+/query/block/numberrange/lower/#Integer/upper/#Integer BlkNumberRangeR GET
+/query/account/address/#Text AccAddressR GET
+/query/account/nonce/#Integer AccNonceR GET

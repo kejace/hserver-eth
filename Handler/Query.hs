@@ -6,24 +6,12 @@ import Data.Aeson
 import Blockchain.Data.DataDefs
 import Data.ByteString.Lazy as BS
 
-{-
-queryGen :: QS.Query -> SQL Action
--}
 
-getQueryR :: Handler Value
+
+getQueryR :: Handler Html
 getQueryR = do
-                query <- requireJsonBody :: Handler QS.Query
-                return $ object ["reply" .= String "Got your Message!"]
+              defaultLayout $  [whamlet|<h1> Queries!
+                                        <h2>
+                                             Right now, we have GET routes for querying \<a href="/query/block">block</a> and <a href="/query/account">account</a> states.
+                               |]
                 
-                -- 
-
-             {-   case query of
-                   (QS.BlkQuery b) ->
-                              case b of
-                                  (QS.ByNumber n) -> do
-                                                        blk <- runDB $ selectList [ blockDataNumber ==. n] [LimitTo 1]
-                                                        return blk
-                                                      
-                                  _ -> return
-                   _ -> return                
--}
