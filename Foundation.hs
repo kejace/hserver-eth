@@ -50,6 +50,8 @@ instance Yesod App where
         120    -- timeout in minutes
         "config/client_session_key.aes"
 
+--    makeSessionBackend _ = return Nothing
+    
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage

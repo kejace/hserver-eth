@@ -34,6 +34,8 @@ library
                      Handler.BlkNumberRange
                      Handler.AccAddress
                      Handler.AccNonce
+                     Handler.AccBalance
+                     Handler.BlkDifficulty
                      QuerySchema
 
     if flag(dev) || flag(library-only)

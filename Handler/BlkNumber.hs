@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+
 module Handler.BlkNumber where
 
 import Import
@@ -15,6 +18,7 @@ import Data.List
 import qualified Prelude as P
        
 getBlkNumberR :: Integer -> Handler Value
-getBlkNumberR n      = do blkD <- runDB $ selectList [ BlockDataNumber ==. n ] [LimitTo 1] :: Handler [Entity BlockData]   
+getBlkNumberR n      = do addHeader "Access-Control-Allow-Origin" "*"
+                          blkD <- runDB $ selectList [ BlockDataNumber ==. n ] [LimitTo 1] :: Handler [Entity BlockData]   
                           blk <- runDB $ selectList [ BlockBlockData ==.  (P.head $ P.map entityVal blkD)  ] [LimitTo 1] :: Handler [Entity Block]
                           returnJson $ P.head $ (P.map entityVal blk) 

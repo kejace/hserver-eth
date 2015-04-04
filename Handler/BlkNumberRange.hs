@@ -17,7 +17,8 @@ import Data.List
 import qualified Prelude as P
        
 getBlkNumberRangeR :: Integer -> Integer -> Handler Value
-getBlkNumberRangeR n1 n2      = do blks <- runDB $ E.selectDistinct $
+getBlkNumberRangeR n1 n2      = do addHeader "Access-Control-Allow-Origin" "*"
+                                   blks <- runDB $ E.selectDistinct $
                                         E.from $ \(a, t) -> do
                                         E.where_ ( (a E.^. BlockDataRefNumber E.>=. E.val n1 ) E.&&. (a E.^. BlockDataRefNumber E.<=. E.val n2)  E.&&. ( a E.^. BlockDataRefBlockId E.==. t E.^. BlockId))
                                         return t

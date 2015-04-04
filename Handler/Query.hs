@@ -10,8 +10,9 @@ import Data.ByteString.Lazy as BS
 
 getQueryR :: Handler Html
 getQueryR = do
+              addHeader "Access-Control-Allow-Origin" "*"
               defaultLayout $  [whamlet|<h1> Queries!
                                         <h2>
-                                             Right now, we have GET routes for querying \<a href="/query/block">block</a> and <a href="/query/account">account</a> states.
+                                             Right now, we have GET routes for querying <a href="/query/block">block</a> and <a href="/query/account">account</a> states.
                                |]
                 

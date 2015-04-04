@@ -19,6 +19,7 @@ import qualified Data.Text as T
 -- Parses addresses from hex      
 getAccAddressR :: Text -> Handler Value
 getAccAddressR address = do
+                           addHeader "Access-Control-Allow-Origin" "*"
                            addr <- runDB $ selectList [ AddressStateRefAddress ==. (Address wd160) ] [ LimitTo 10 ] :: Handler [Entity AddressStateRef]
                            returnJson $ P.map entityVal addr
                          where

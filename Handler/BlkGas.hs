@@ -18,7 +18,8 @@ import qualified Prelude as P
 
         
 getBlkGasR :: Integer -> Handler Value
-getBlkGasR g      = do  blks <- runDB $ E.selectDistinct $
+getBlkGasR g      = do  addHeader "Access-Control-Allow-Origin" "*"
+                        blks <- runDB $ E.selectDistinct $
                                     E.from $ \(a, t) -> do
                                     E.where_ ( (a E.^. BlockDataRefGasUsed E.==. E.val g)  E.&&.( a E.^. BlockDataRefBlockId E.==. t E.^. BlockId))
                                     return t

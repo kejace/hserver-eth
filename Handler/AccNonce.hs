@@ -17,6 +17,7 @@ import qualified Data.Text as T
 -- Parses addresses from hex      
 getAccNonceR :: Integer -> Handler Value
 getAccNonceR nonce =   do
+                           addHeader "Access-Control-Allow-Origin" "*"
                            addr <- runDB $ selectList [ AddressStateRefNonce ==. nonce ] [ LimitTo 100 ] :: Handler [Entity AddressStateRef]
                            returnJson $ P.map entityVal addr
 
