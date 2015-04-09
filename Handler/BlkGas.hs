@@ -22,5 +22,6 @@ getBlkGasR g      = do  addHeader "Access-Control-Allow-Origin" "*"
                         blks <- runDB $ E.selectDistinct $
                                     E.from $ \(a, t) -> do
                                     E.where_ ( (a E.^. BlockDataRefGasUsed E.==. E.val g)  E.&&.( a E.^. BlockDataRefBlockId E.==. t E.^. BlockId))
+                                    E.limit $ 100
                                     return t
                         returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}

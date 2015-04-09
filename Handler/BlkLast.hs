@@ -21,7 +21,8 @@ getBlkLastR n      =            do addHeader "Access-Control-Allow-Origin" "*"
                                    blks <- runDB $ E.select $
                                         E.from $ \(a, t) -> do
                                         E.where_ (  a E.^. BlockDataRefBlockId E.==. t E.^. BlockId)
-                                        E.limit 100
+                                        E.limit $ P.min (fromIntegral n :: Int64) 100 
                                         E.orderBy [E.desc (a E.^. BlockDataRefNumber)]
                                         return t
                                    returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
+                                

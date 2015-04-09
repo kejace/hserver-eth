@@ -21,6 +21,7 @@ getBlkNumberRangeR n1 n2      = do addHeader "Access-Control-Allow-Origin" "*"
                                    blks <- runDB $ E.select $
                                         E.from $ \(a, t) -> do
                                         E.where_ ( (a E.^. BlockDataRefNumber E.>=. E.val n1 ) E.&&. (a E.^. BlockDataRefNumber E.<=. E.val n2)  E.&&. ( a E.^. BlockDataRefBlockId E.==. t E.^. BlockId))
+                                        E.limit $ 100
                                         E.orderBy [E.desc (a E.^. BlockDataRefNumber)]
                                         return t
                                    returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}

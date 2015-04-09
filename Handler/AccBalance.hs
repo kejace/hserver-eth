@@ -19,7 +19,7 @@ import qualified Prelude as P
        
 getAccBalanceR :: Integer -> Handler Value
 getAccBalanceR n      = do addHeader "Access-Control-Allow-Origin" "*"
-                           acc <- runDB $ selectList [ AddressStateRefBalance ==. n ] [LimitTo 10] :: Handler [Entity AddressStateRef]   
+                           acc <- runDB $ selectList [ AddressStateRefBalance ==. n ] [LimitTo 100] :: Handler [Entity AddressStateRef]   
                            returnJson $ (P.map entityVal acc) 
 
 

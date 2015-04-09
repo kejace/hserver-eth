@@ -6,10 +6,10 @@
 / HomeR GET POST
 /query/ QueryR GET
 
-/query/transaction TransactionInfoR GET
+-- /query/transaction TransactionInfoR GET
 /query/block BlockInfoR GET
 /query/account AccountInfoR GET
-/query/transaction/hash/#Integer TxHashR GET
+-- /query/transaction/hash/#Integer TxHashR GET
 /query/block/number/#Integer BlkNumberR GET
 /query/block/gas/#Integer BlkGasR GET
 /query/block/gasrange/lower/#Integer/upper/#Integer BlkGasRangeR GET
