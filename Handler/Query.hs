@@ -12,7 +12,12 @@ getQueryR :: Handler Html
 getQueryR = do
               addHeader "Access-Control-Allow-Origin" "*"
               defaultLayout $  [whamlet|<h1> Queries!
-                                        <h2>
-                                             Right now, we have GET routes for querying <a href="/query/block">block</a> and <a href="/query/account">account</a> states.
+
+                                        <h3>
+                                        <p>
+
+                                        Follow the links to learn how to query <a href="/query/block">block</a> and <a href="/query/account">account</a> states. Resources
+                                        are located via GET routes.
+                                        They are meant to be invoked via XMLHttpRequest and return raw JSON. For something a bit prettier, look at our reactive blockchain explorer.
                                |]
                 

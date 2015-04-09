@@ -19,3 +19,4 @@
 /query/account/nonce/#Integer AccNonceR GET
 /query/account/balance/#Integer AccBalanceR GET
 /query/block/difficulty/#Integer BlkDifficultyR GET
+/query/block/hash/#Text BlkHashR GET

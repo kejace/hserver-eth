@@ -1,17 +1,22 @@
-<h1>FlexExp - the flexible Blockchain Explorer brought to you by BlockApps.net
+<h1>BlockApps.net - the most convenient and reliable API for writing Blockchain Based applications.
 
 <p>
-  Most Blockchain explorers are limited to queries involving single block, transaction or account state lookups.
-  Ours will allow some more flexible queries than you are used to. See for yourself!
-
-  Sending us a post at /pquery/ should yield some incomprehensible html, with a reference to a Block!
-
- <p>
-  Example:
+  All blockchain based applications will need to pull information from the blockchain. We've made that
+  process simple. We've created an intuitive RESTful API for querying the Ethereum Blockchain. Our Haskell based
+  Ethereum network peer (client) is compliant with PoC9 and can also be used as a web server. But you don't have to
+  install the peer - simply follow the links below to try the API. 
 
  <p>
-  After it's running, try
+  We have GET routes for <a href="/query">querying</a> <a href="/query/block">blocks</a> and <a href="query/account/">account states</a>.
+  See the descriptions within, including examples.
  <break>
- <center>
-    curl -d "{\"tag\":\"BlkQuery\",\"contents\":{\"tag\":\"ByNumber\",\"number\":17}}" http://localhost:3000/pquery
+  Also, check out our reactive blockchain explorer.
+<h2>Coming Soon:
+
+<p>
+ <ol> 
+  <li> Transaction Queries - view transactions just as you can view blocks and accounts.
+  <li> Push Notifications - be notified of new blocks, transaction confirmations, as they happen.
+  <li> Transaction Signing - sign transactions in the browser, and push them to the network - without running a client locally.
+  <li> Network Statistics - view the health of the network, in real time.
   

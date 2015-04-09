@@ -36,6 +36,7 @@ library
                      Handler.AccNonce
                      Handler.AccBalance
                      Handler.BlkDifficulty
+                     Handler.BlkHash
                      QuerySchema
 
     if flag(dev) || flag(library-only)
@@ -98,6 +99,9 @@ library
                  , ethereum-data-sql
                  , ethereum-merkle-patricia-db
                  , esqueleto
+                 , ethereum-rlp
+                 , base16-bytestring
+
 executable         api
     if flag(library-only)
         Buildable: False
