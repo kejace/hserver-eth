@@ -5,7 +5,6 @@
 
 / HomeR GET POST
 /query/ QueryR GET
-/pquery/ PQueryR POST
 
 /query/transaction TransactionInfoR GET
 /query/block BlockInfoR GET
@@ -20,3 +19,4 @@
 /query/account/balance/#Integer AccBalanceR GET
 /query/block/difficulty/#Integer BlkDifficultyR GET
 /query/block/hash/#Text BlkHashR GET
+/query/block/last/#Integer BlkLastR GET

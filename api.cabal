@@ -37,6 +37,7 @@ library
                      Handler.AccBalance
                      Handler.BlkDifficulty
                      Handler.BlkHash
+                     Handler.BlkLast
                      QuerySchema
 
     if flag(dev) || flag(library-only)
