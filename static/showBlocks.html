@@ -1,0 +1,73 @@
+
+<html>
+  <body>
+    <style>
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 5px;
+        text-align: left;
+      }
+    </style>
+    </head
+  <body>
+    <script>
+      var oReq = new XMLHttpRequest();
+      oReq.open("get", "http://api.blockapps.net/query/block/last/20", true);
+      oReq.send();
+
+      oReq.onreadystatechange = function() {
+        if (oReq.readyState == 4 && oReq.status == 200) {
+          var blocks = JSON.parse(oReq.responseText);
+          
+          for(var i = 0; i < blocks.length; i++) {
+            showBlockData(blocks[i].blockData);
+          }
+        }
+      }
+
+      function showBlockData(bd) {
+        var row = blocks.insertRow();
+
+        row.insertCell(0).innerHTML = bd.number;
+        row.insertCell(1).innerHTML = bd.extraData;
+        row.insertCell(2).innerHTML = bd.gasUsed;
+        row.insertCell(3).innerHTML = bd.gasLimit;
+        row.insertCell(4).innerHTML = bd.unclesHash;
+        row.insertCell(5).innerHTML = bd.mixHash;
+        row.insertCell(6).innerHTML = bd.receiptsRoot;
+        row.insertCell(7).innerHTML = bd.difficulty;
+        row.insertCell(8).innerHTML = bd.timestamp;
+        row.insertCell(9).innerHTML = bd.coinbase.address;
+        row.insertCell(10).innerHTML = bd.parentHash;
+        row.insertCell(11).innerHTML = bd.nonce;
+        row.insertCell(12).innerHTML = bd.stateRoot;
+        row.insertCell(13).innerHTML = bd.transactionsRoot;
+
+      }
+
+    </script>
+
+    <table id="blocks">
+      <tr>
+	<th>Block Number</th>
+	<th>Extra Data</th>
+	<th>Gas Used</th>
+	<th>Gas Limit</th>
+	<th>Uncles Hash</th>
+	<th>Mix Hash</th>
+	<th>Receipts Root</th>
+	<th>Difficulty</th>
+	<th>Timestamp</th>
+	<th>Coinbase</th>
+	<th>Parent Hash</th>
+	<th>Nonce</th>
+	<th>StateRoot</th>
+	<th>TransactionsRoot</th>
+      </tr>
+    </table>
+
+  </body>
+</html>

@@ -10,7 +10,7 @@
   We have GET routes for <a href="/query">querying</a> <a href="/query/block">blocks</a> and <a href="query/account/">account states</a>.
   See the descriptions within, including examples.
  <break>
-  Also, check out our reactive blockchain explorer.
+  Also, check out a <a href="/demo">demo</a> of how to parse and visualize the records you get back.
 <h2>Coming Soon:
 
 <p>

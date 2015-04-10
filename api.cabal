@@ -38,6 +38,7 @@ library
                      Handler.BlkDifficulty
                      Handler.BlkHash
                      Handler.BlkLast
+                     Handler.Demo
                      QuerySchema
 
     if flag(dev) || flag(library-only)
