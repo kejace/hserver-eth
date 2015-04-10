@@ -18,6 +18,6 @@ getQueryR = do
 
                                         Follow the links to learn how to query <a href="/query/block">block</a> and <a href="/query/account">account</a> states. Resources
                                         are located via GET routes.
-                                        They are meant to be invoked via XMLHttpRequest and return raw JSON. For something a bit prettier, look at our reactive blockchain explorer.
+                                        They are meant to be invoked via XMLHttpRequest and return raw JSON. For something a bit prettier, look <a href="/demo">here</a>.
                                |]
                 
