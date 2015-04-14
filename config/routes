@@ -21,3 +21,4 @@
 /query/block/hash/#Text BlkHashR GET
 /query/block/last/#Integer BlkLastR GET
 /demo/ DemoR GET
+

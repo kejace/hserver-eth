@@ -27,7 +27,7 @@ getBlkHashR :: Text -> Handler Value
 getBlkHashR h =                 do addHeader "Access-Control-Allow-Origin" "*"
                                    blks <- runDB $ E.selectDistinct $
                                         E.from $ \(a, t) -> do
-                                        E.where_ ( (a E.^. BlockRefHash E.==. E.val ( DD.SHA . fromIntegral . byteString2Integer . fst. B16.decode $ T.encodeUtf8 $ h ) ) E.&&. ( a E.^. BlockRefBlockId E.==. t E.^. BlockId))
+                                        E.where_ ( (a E.^. BlockDataRefHash E.==. E.val ( DD.SHA . fromIntegral . byteString2Integer . fst. B16.decode $ T.encodeUtf8 $ h ) ) E.&&. ( a E.^. BlockDataRefBlockId E.==. t E.^. BlockId))
                                         return t
                                    returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
 

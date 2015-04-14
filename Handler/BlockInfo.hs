@@ -1,21 +1,50 @@
+{-# LANGUAGE DeriveDataTypeable
+           , EmptyDataDecls
+           , FlexibleContexts
+           , FlexibleInstances
+           , FunctionalDependencies
+           , MultiParamTypeClasses
+           , TypeFamilies
+           , UndecidableInstances
+           , GADTs
+ #-}
+
+
 module Handler.BlockInfo where
 
 import Import
 
+import Data.Aeson
+import qualified Blockchain.Data.DataDefs as DD
+import Data.ByteString.Lazy as BS
+import Database.Persist
+import Database.Persist.TH
+import Database.Persist.Postgresql
+
+import Blockchain.Data.RLP
+import Blockchain.Database.MerklePatricia
+import Blockchain.ExtWord
+import Blockchain.Util
+
+import Data.ByteString.Base16 as B16
+import Data.ByteString.Lazy as BS
+
+import qualified Database.Esqueleto as E
+       
+import Handler.PQuery
+import Data.List
+       
+import qualified Prelude as P
+import qualified Data.Text.Encoding as T
+
+import Yesod.Core.Handler
+
+
 getBlockInfoR :: Handler Html
 getBlockInfoR = do addHeader "Access-Control-Allow-Origin" "*"
-                   defaultLayout [whamlet| <h1> Blocks
-                                                    
+		   defaultLayout [whamlet| placeholder for refactor |]
+{-
+qry :: E.SqlQuery (Entity Block)
 
-                                                <h2> Blocks are fetchable by a variety of queries! 
-
-                                                <p>
-
-                                                <ul>
-                                                      <li> Grab the genesis block by <a href="/query/block/number/0">number</a> 
-                                                         or by <a href="/query/block/hash/fd4af92a79c7fc2fd8bf0d342f2e832e1d4f485c85b9152d2039e03bc604fdca">hash</a>.  
- 
-                                                      <li> Find blocks with a fair amount of <a href="/query/block/gasrange/lower/100000/upper/150000">gas usage</a>.
-
-                                                      <li> Or even, get the last 42 blocks - in <a href="/query/block/last/42">real time</a>. 
-                                             |]
+sd :: SideData
+-}
