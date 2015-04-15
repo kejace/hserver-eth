@@ -9,14 +9,13 @@
            , GADTs
  #-}
 
-
 module Handler.BlockInfo where
 
 import Import
 
 import Data.Aeson
 import qualified Blockchain.Data.DataDefs as DD
-import Data.ByteString.Lazy as BS
+import qualified Data.ByteString.Lazy as BS
 import Database.Persist
 import Database.Persist.TH
 import Database.Persist.Postgresql
@@ -27,7 +26,7 @@ import Blockchain.ExtWord
 import Blockchain.Util
 
 import Data.ByteString.Base16 as B16
-import Data.ByteString.Lazy as BS
+import qualified Data.ByteString.Lazy as BS
 
 import qualified Database.Esqueleto as E
        
@@ -35,16 +34,36 @@ import Handler.PQuery
 import Data.List
        
 import qualified Prelude as P
+import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 
 import Yesod.Core.Handler
 
 
-getBlockInfoR :: Handler Html
-getBlockInfoR = do addHeader "Access-Control-Allow-Origin" "*"
-		   defaultLayout [whamlet| placeholder for refactor |]
-{-
-qry :: E.SqlQuery (Entity Block)
+getFilter::(E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity AddressStateRef))-> (Text, Text) -> expr (E.Value Bool)
+getFilter (a, t) ("number", v) = a E.^. BlockDataRefNumber E.==. E.val (P.read $ T.unpack v)
+getFilter (a, t) ("address", v) = t E.^. AddressStateRefAddress E.==. E.val (P.read $ T.unpack v)
 
-sd :: SideData
+
+getBlockInfoR :: Handler Value
+getBlockInfoR = do
+  	           getParameters <- reqGetParams <$> getRequest
+                   addHeader "Access-Control-Allow-Origin" "*"
+                   blks <- runDB $ E.selectDistinct $
+                                        E.from $ \(a, t, b) -> do
+                                        E.where_ ((P.foldl1 (E.&&.) $ P.map (getFilter (a, t)) $ getParameters )  E.&&. ( a E.^. BlockDataRefBlockId E.==. b E.^. BlockId))
+                                        return t
+                   returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
+
+
+{-
+
+do
+  addHeader "Access-Control-Allow-Origin" "*"
+  blks <- runDB $ E.selectDistinct $
+                                        E.from $ \x@(_, t) -> do
+                                        E.where_ (
+                                          P.foldl1 (E.&&.)     [getFilter x "number", getFilter x "blockId"])
+                                        return t
+  returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
 -}
