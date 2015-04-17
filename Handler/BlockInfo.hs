@@ -49,10 +49,12 @@ getBlockInfoR :: Handler Value
 getBlockInfoR = do
   	           getParameters <- reqGetParams <$> getRequest
                    addHeader "Access-Control-Allow-Origin" "*"
-                   blks <- runDB $ E.selectDistinct $
-                                        E.from $ \(a, t, b) -> do
-                                        E.where_ ((P.foldl1 (E.&&.) $ P.map (getFilter (a, t)) $ getParameters )  E.&&. ( a E.^. BlockDataRefBlockId E.==. b E.^. BlockId))
-                                        return t
+                   blks <- runDB $ E.select $
+                                        E.from $ \(a, t) -> do
+                                        E.where_ ((P.foldl1 (E.&&.) $ P.map (getFilter (a, t)) $ getParameters ))
+                                        E.limit $ 100
+                                        E.orderBy [E.desc (a E.^. BlockDataRefNumber)]
+                                        return a
                    returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
 
 
