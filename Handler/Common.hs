@@ -14,3 +14,7 @@ getFaviconR = return $ TypedContent "image/x-icon"
 getRobotsR :: Handler TypedContent
 getRobotsR = return $ TypedContent typePlain
                     $ toContent $(embedFile "config/robots.txt")
+
+-- We use this to prevent the queries to go forever - at least in theory
+fetchLimit :: Int64
+fetchLimit = 100
