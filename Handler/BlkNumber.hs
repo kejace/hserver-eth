@@ -5,6 +5,8 @@ module Handler.BlkNumber where
 
 import Import
 
+import Handler.Common (fetchLimit)
+
 import Data.Aeson
 import qualified Blockchain.Data.DataDefs as DD
 import Data.ByteString.Lazy as BS

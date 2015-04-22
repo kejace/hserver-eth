@@ -13,6 +13,8 @@ module Handler.BlockInfo where
 
 import Import
 
+import Handler.Common (fetchLimit)
+
 import Data.Aeson
 import qualified Blockchain.Data.DataDefs as DD
 import qualified Data.ByteString.Lazy as BS
@@ -41,8 +43,10 @@ import Yesod.Core.Handler
 
 
 getFilter::(E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity AddressStateRef))-> (Text, Text) -> expr (E.Value Bool)
-getFilter (a, t) ("number", v) = a E.^. BlockDataRefNumber E.==. E.val (P.read $ T.unpack v)
-getFilter (a, t) ("address", v) = t E.^. AddressStateRefAddress E.==. E.val (P.read $ T.unpack v)
+getFilter (a, t) ("number", v) = a E.^. BlockDataRefNumber E.==. E.val (P.read $ T.unpack v :: Integer)
+getFilter (a, t) ("mingas", v) = a E.^. BlockDataRefGasUsed E.>=. E.val (P.read $ T.unpack v :: Integer) 
+getFilter (a, t) ("minnum", v) = a E.^. BlockDataRefNumber E.>=. E.val (P.read $ T.unpack v :: Integer)
+-- getFilter (a, t) ("address", v) = t E.^. AddressStateRefAddress E.==. E.val (P.read $ T.unpack v)
 
 
 getBlockInfoR :: Handler Value
@@ -52,9 +56,9 @@ getBlockInfoR = do
                    blks <- runDB $ E.select $
                                         E.from $ \(a, t) -> do
                                         E.where_ ((P.foldl1 (E.&&.) $ P.map (getFilter (a, t)) $ getParameters ))
-                                        E.limit $ 100
                                         E.orderBy [E.desc (a E.^. BlockDataRefNumber)]
-                                        return a
+                                        E.limit $ fetchLimit
+                                        return t
                    returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
 
 
