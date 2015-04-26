@@ -34,11 +34,11 @@ import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
 import Handler.Common
 import Handler.Home
 import Handler.Query
-import Handler.PQuery
 import Handler.TransactionInfo
 import Handler.AccountInfo
 import Handler.BlockInfo
 import Handler.TxHash
+import Handler.TxAddress
 import Handler.BlkNumber
 import Handler.BlkGas
 import Handler.BlkGasRange

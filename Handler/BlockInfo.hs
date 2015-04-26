@@ -13,7 +13,7 @@ module Handler.BlockInfo where
 
 import Import
 
-import Handler.Common (fetchLimit)
+import Handler.Common 
 
 import Data.Aeson
 import qualified Blockchain.Data.DataDefs as DD
@@ -32,7 +32,6 @@ import qualified Data.ByteString.Lazy as BS
 
 import qualified Database.Esqueleto as E
        
-import Handler.PQuery
 import Data.List
        
 import qualified Prelude as P

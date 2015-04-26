@@ -2,7 +2,7 @@ module Handler.BlkNumberRange where
 
 import Import
 
-import Handler.Common (fetchLimit)
+import Handler.Common
 
 import Data.Aeson
 import qualified Blockchain.Data.DataDefs as DD
@@ -13,7 +13,6 @@ import Database.Persist.Postgresql
 
 import qualified Database.Esqueleto as E
        
-import Handler.PQuery
 import Data.List
        
 import qualified Prelude as P
