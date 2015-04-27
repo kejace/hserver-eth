@@ -103,6 +103,9 @@ library
                  , esqueleto
                  , ethereum-rlp
                  , base16-bytestring
+                 , transformers
+                 , resourcet
+                 , old-locale
 
 executable         api
     if flag(library-only)
