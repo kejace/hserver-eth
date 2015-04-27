@@ -25,9 +25,10 @@ getFaviconR = return $ TypedContent "image/x-icon"
                      $ toContent $(embedFile "config/favicon.ico")
 
 getRobotsR :: Handler TypedContent
-getRobotsR = return $ TypedContent typePlain
-                    $ toContent $(embedFile "config/robots.txt")
+getRobotsR = return $ TypedContent typePlain $ toContent $(embedFile "config/robots.txt")
 
--- We use this to prevent the queries to go forever - at least in theory
+
+
+-- We use this to throttle queries
 fetchLimit :: Int64
 fetchLimit = 100
