@@ -3,6 +3,7 @@ module Handler.BlkDifficulty where
 import Import
 
 import Handler.Common 
+import Blockchain.Data.DataDefs
 
 import Data.Aeson
 import Data.ByteString.Lazy as BS

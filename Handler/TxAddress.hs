@@ -6,13 +6,14 @@ import Import
 
 
 import Handler.Common
+import Blockchain.Data.DataDefs
 
 import Database.Persist       
 import Database.Persist.TH
 import Database.Persist.Postgresql
 import qualified Prelude as P
 import Blockchain.Data.Address
--- import Blockchain.Data.RawTransaction
+import Blockchain.Data.RawTransaction
 import Blockchain.ExtWord
 import Numeric
 
