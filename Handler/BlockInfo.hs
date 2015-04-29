@@ -48,8 +48,11 @@ getFilter (bdRef, accStateRef, rawTX, blk) ("mingas", v) = bdRef E.^. BlockDataR
 getFilter (bdRef, accStateRef, rawTX, blk) ("minnum", v) = bdRef E.^. BlockDataRefNumber E.>=. E.val (P.read $ T.unpack v :: Integer)
 getFilter (bdRef, accStateRef, rawTX, blk) ("coinbase", v) = bdRef E.^. BlockDataRefCoinbase E.==. E.val (Address wd160)
       where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
-getFilter (bdRef, accStateRef, rawTX, blk) ("txaddress", v) = rawTX E.^. RawTransactionBlockId E.==. blk E.^. BlockId
-
+getFilter (bdRef, accStateRef, rawTX, blk) ("txaddress", v) = (rawTX E.^. RawTransactionBlockId E.==. blk E.^. BlockId)
+                                                              E.&&. ((rawTX E.^. RawTransactionFromAddress E.==. E.val (Address wd160)))
+                                                                      E.||. (rawTX E.^. RawTransactionToAddress E.==. E.val (Just (Address wd160)))
+                                                              
+      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
 -- getFilter (a, t) ("address", v) = t E.^. AddressStateRefAddress E.==. E.val (P.read $ T.unpack v)
 
 
@@ -58,7 +61,7 @@ getBlockInfoR = do
   	           getParameters <- reqGetParams <$> getRequest
                    addHeader "Access-Control-Allow-Origin" "*"
                    blks <- runDB $ E.select $
-                                        E.from $ \(bdRef `E.InnerJoin` blk `E.InnerJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
+                                        E.from $ \(blk `E.LeftOuterJoin` bdRef `E.LeftOuterJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
                                         E.where_ ((P.foldl1 (E.&&.) $ P.map (getFilter (bdRef, accStateRef, rawTX, blk)) $ getParameters ))
                                         E.on ( accStateRef E.^. AddressStateRefAddress E.==. rawTX E.^. RawTransactionFromAddress )
                                         E.on ( rawTX E.^. RawTransactionBlockId E.==. blk E.^. BlockId )
