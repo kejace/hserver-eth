@@ -13,11 +13,7 @@ import Database.Persist.TH
 import Database.Persist.Postgresql
 import qualified Prelude as P
 import Blockchain.Data.Address
-<<<<<<< HEAD
---import Blockchain.Data.RawTransaction
-=======
 import Blockchain.Data.RawTransaction
->>>>>>> upstream/master
 import Blockchain.ExtWord
 import Numeric
 

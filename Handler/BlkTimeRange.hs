@@ -5,7 +5,7 @@ import Import
 import Handler.Common
 
 import Data.Aeson
-import qualified Blockchain.Data.DataDefs as DD
+import Blockchain.Data.DataDefs 
 import Data.ByteString.Lazy as BS
 import Database.Persist
 import Database.Persist.TH

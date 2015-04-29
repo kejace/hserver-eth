@@ -13,7 +13,7 @@ import qualified Prelude as P
 import Blockchain.Data.Address
 import Blockchain.ExtWord
 import Numeric
-import qualified Blockchain.Data.DataDefs as DD
+import Blockchain.Data.DataDefs
 
 
 import qualified Data.Text as T
