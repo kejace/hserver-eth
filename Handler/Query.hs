@@ -1,7 +1,6 @@
 module Handler.Query where
 
 import Import
-import qualified QuerySchema as QS
 import Data.Aeson
 import Blockchain.Data.DataDefs
 import Data.ByteString.Lazy as BS
@@ -43,5 +42,9 @@ getQueryR = do
  
                                                     <li> Does anyone have balance  <a href="/query/account/balance/33000000000000000000">33000000000000000000</a>?
  
+                                        <h2> See the transations to and from addresses:
+
+                                        <p> 
+                                             A popular <a href="/query/transaction/address/1c11aa45c792e202e9ffdc2f12f99d0d209bef70">address</a>.
                                |]
           

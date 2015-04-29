@@ -34,15 +34,17 @@ import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
 import Handler.Common
 import Handler.Home
 import Handler.Query
-import Handler.PQuery
 import Handler.TransactionInfo
 import Handler.AccountInfo
 import Handler.BlockInfo
 import Handler.TxHash
+import Handler.TxAddress
 import Handler.BlkNumber
 import Handler.BlkGas
 import Handler.BlkGasRange
 import Handler.BlkNumberRange
+import Handler.BlkTimeRange
+import Handler.BlkId
 import Handler.AccAddress
 import Handler.AccNonce
 import Handler.AccBalance
@@ -50,6 +52,7 @@ import Handler.BlkDifficulty
 import Handler.BlkHash
 import Handler.BlkLast
 import Handler.Demo
+import Handler.BlkCoinbase
 
 -- This line actually creates our YesodDispatch instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see the

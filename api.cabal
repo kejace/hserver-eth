@@ -23,15 +23,17 @@ library
                      Handler.Common
                      Handler.Home
                      Handler.Query
-                     Handler.PQuery
                      Handler.TransactionInfo
                      Handler.AccountInfo
                      Handler.BlockInfo
                      Handler.TxHash
+                     Handler.TxAddress
                      Handler.BlkNumber
                      Handler.BlkGas
                      Handler.BlkGasRange
                      Handler.BlkNumberRange
+                     Handler.BlkTimeRange
+                     Handler.BlkId
                      Handler.AccAddress
                      Handler.AccNonce
                      Handler.AccBalance
@@ -39,7 +41,9 @@ library
                      Handler.BlkHash
                      Handler.BlkLast
                      Handler.Demo
-                     QuerySchema
+                     Handler.JsonJuggler
+                     Handler.BlkCoinbase
+
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -103,9 +107,9 @@ library
                  , esqueleto
                  , ethereum-rlp
                  , base16-bytestring
-                 , transformers
-                 , resourcet
                  , old-locale
+                 , ethereum-util
+                 , transformers
 
 executable         api
     if flag(library-only)

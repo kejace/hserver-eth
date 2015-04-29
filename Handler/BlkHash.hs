@@ -2,7 +2,7 @@ module Handler.BlkHash where
 
 import Import
 
-import Handler.Common (fetchLimit)
+import Handler.Common 
 
 import Data.Aeson
 import qualified Blockchain.Data.DataDefs as DD
@@ -19,7 +19,6 @@ import Database.Persist.Postgresql
 
 import qualified Database.Esqueleto as E
 
-import Handler.PQuery
 import Data.List
 import qualified Data.Text.Encoding as T        
 import qualified Prelude as P

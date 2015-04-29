@@ -13,7 +13,7 @@ module Handler.BlockInfo where
 
 import Import
 
-import Handler.Common (fetchLimit)
+import Handler.Common 
 
 import Data.Aeson
 import qualified Blockchain.Data.DataDefs as DD
@@ -32,12 +32,9 @@ import qualified Data.ByteString.Lazy as BS
 
 import qualified Database.Esqueleto as E
        
-import Handler.PQuery
 import Data.List
 
 import Control.Monad
-import Control.Monad.IO.Class
-import Control.Monad.Trans.Resource
 
 import qualified Prelude as P
 import qualified Data.Text as T
@@ -47,13 +44,17 @@ import System.Locale
 import Data.Time
 import Data.Time.Format
 
+
+import Blockchain.Data.Address
+import Blockchain.ExtWord
+import Numeric
+
 import Yesod.Core.Handler
 
 import Debug.Trace
 
 --makeFilter :: (E.Esqueleto query expr backend) => (expr (Entity BlockDataRef) -> (expr (Entity BlockDataRef)) -> a -> (Text, Text) -> expr (E.Value Bool)
 
-timeFormat = "%-Y-%m-%dT%T.%f"
 
 getFilter::(E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef))-> (Text, Text) -> expr (E.Value Bool)
 getFilter a ("num", v)    = a E.^. BlockDataRefNumber  E.==. E.val (P.read $ T.unpack v :: Integer)
@@ -68,12 +69,14 @@ getFilter a ("maxdiff", v) = a E.^. BlockDataRefDifficulty E.<=. E.val (P.read $
 getFilter a ("gaslimit", v)    = a E.^. BlockDataRefGasLimit E.==. E.val (P.read $ T.unpack v :: Integer) 
 getFilter a ("mingaslimit", v) = a E.^. BlockDataRefGasLimit E.>=. E.val (P.read $ T.unpack v :: Integer) 
 getFilter a ("maxgaslimit", v) = a E.^. BlockDataRefGasLimit E.<=. E.val (P.read $ T.unpack v :: Integer)
-getFilter a ("mintime", v) = a E.^. BlockDataRefTimestamp E.>=. E.val utctime
-  where utctime = readTime defaultTimeLocale timeFormat $ init (T.unpack v) 
-getFilter a ("maxtime", v) = a E.^. BlockDataRefTimestamp E.<=. E.val utctime
-  where utctime = readTime defaultTimeLocale timeFormat $ init (T.unpack v) 
 getFilter a ("time", v) = a E.^. BlockDataRefTimestamp E.==. E.val utctime
-  where utctime = readTime defaultTimeLocale timeFormat $ init (T.unpack v) 
+  where utctime = stringToDate v
+getFilter a ("mintime", v) = a E.^. BlockDataRefTimestamp E.>=. E.val utctime
+  where utctime = stringToDate v
+getFilter a ("maxtime", v) = a E.^. BlockDataRefTimestamp E.<=. E.val utctime
+  where utctime = stringToDate v
+getFilter a ("coinbase", v) = a E.^. BlockDataRefCoinbase E.==. E.val (Address wd160)
+  where ((wd160, _):_) = readHex $ T.unpack $ (P.read $ ("\"" P.++ (T.unpack v) P.++ "\"") ):: [(Word160,String)]
 
 
 blockIdRef :: (E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity Block))-> expr (E.Value Bool)
@@ -91,7 +94,6 @@ getBlockInfoR = do
                             E.limit $ fetchLimit
                             return blockdataref
                    returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
-
 
 
     {-

@@ -18,7 +18,7 @@ ip-from-header: "_env:IP_FROM_HEADER:false"
 # skip-combining: false
 
 database:
-  user:     "_env:PGUSER:kjameslubin"
+  user:     "_env:PGUSER:postgres"
   password: "_env:PGPASS:api"
   host:     "_env:PGHOST:localhost"
   port:     "_env:PGPORT:5432"
@@ -26,4 +26,4 @@ database:
   poolsize: "_env:PGPOOLSIZE:10"
 
 copyright: BlockApps 2015
-#analytics: UA-YOURCODE
+analytics: UA-62294342-1
