@@ -15,13 +15,14 @@ import Import
 
 import Handler.Common 
 import Blockchain.Data.DataDefs
+import Blockchain.Data.Address
 
 import Data.Aeson
 import qualified Data.ByteString.Lazy as BS
 import Database.Persist
 import Database.Persist.TH
 import Database.Persist.Postgresql
-
+import Numeric
 import Blockchain.Data.RLP
 import Blockchain.Database.MerklePatricia
 import Blockchain.ExtWord
@@ -41,10 +42,14 @@ import qualified Data.Text.Encoding as T
 import Yesod.Core.Handler
 
 
-getFilter::(E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity AddressStateRef))-> (Text, Text) -> expr (E.Value Bool)
-getFilter (a, t) ("number", v) = a E.^. BlockDataRefNumber E.==. E.val (P.read $ T.unpack v :: Integer)
-getFilter (a, t) ("mingas", v) = a E.^. BlockDataRefGasUsed E.>=. E.val (P.read $ T.unpack v :: Integer) 
-getFilter (a, t) ("minnum", v) = a E.^. BlockDataRefNumber E.>=. E.val (P.read $ T.unpack v :: Integer)
+getFilter::(E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity AddressStateRef), expr (Entity RawTransaction), expr (Entity Block))-> (Text, Text) -> expr (E.Value Bool)
+getFilter (bdRef, accStateRef, rawTX, blk) ("number", v) = bdRef E.^. BlockDataRefNumber E.==. E.val (P.read $ T.unpack v :: Integer)
+getFilter (bdRef, accStateRef, rawTX, blk) ("mingas", v) = bdRef E.^. BlockDataRefGasUsed E.>=. E.val (P.read $ T.unpack v :: Integer) 
+getFilter (bdRef, accStateRef, rawTX, blk) ("minnum", v) = bdRef E.^. BlockDataRefNumber E.>=. E.val (P.read $ T.unpack v :: Integer)
+getFilter (bdRef, accStateRef, rawTX, blk) ("coinbase", v) = bdRef E.^. BlockDataRefCoinbase E.==. E.val (Address wd160)
+      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
+getFilter (bdRef, accStateRef, rawTX, blk) ("txaddress", v) = rawTX E.^. RawTransactionBlockId E.==. blk E.^. BlockId
+
 -- getFilter (a, t) ("address", v) = t E.^. AddressStateRefAddress E.==. E.val (P.read $ T.unpack v)
 
 
@@ -53,11 +58,16 @@ getBlockInfoR = do
   	           getParameters <- reqGetParams <$> getRequest
                    addHeader "Access-Control-Allow-Origin" "*"
                    blks <- runDB $ E.select $
-                                        E.from $ \(bdRef, accStRef, blk) -> do
-                                        E.where_ (  ( (P.foldl1 (E.&&.) $ P.map (getFilter (bdRef, accStRef)) $ getParameters ))
-                                                    E.&&. (bdRef E.^. BlockDataRefBlockId E.==. blk E.^. BlockId )  )
+                                        E.from $ \(bdRef `E.InnerJoin` blk `E.InnerJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
+                                        E.where_ ((P.foldl1 (E.&&.) $ P.map (getFilter (bdRef, accStateRef, rawTX, blk)) $ getParameters ))
+                                        E.on ( accStateRef E.^. AddressStateRefAddress E.==. rawTX E.^. RawTransactionFromAddress )
+                                        E.on ( rawTX E.^. RawTransactionBlockId E.==. blk E.^. BlockId )
+                                        E.on ( blk E.^. BlockId E.==. bdRef E.^. BlockDataRefBlockId )
+                                        
+
                                         E.limit $ fetchLimit
-					E.orderBy [E.desc (bdRef E.^. BlockDataRefNumber)]
+                                        
+                                        E.orderBy [E.desc (bdRef E.^. BlockDataRefNumber)]
                                         return blk
                    returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
 
