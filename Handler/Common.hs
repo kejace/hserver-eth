@@ -5,7 +5,7 @@ module Handler.Common where
 
 import Data.FileEmbed (embedFile)
 import Import
-import qualified Blockchain.Data.DataDefs as DD
+import Blockchain.Data.DataDefs
 import Blockchain.SHA
 import Blockchain.Database.MerklePatricia
 import Blockchain.Data.Address
@@ -13,8 +13,13 @@ import Blockchain.Data.Transaction
 
 import qualified Data.ByteString as BS
 
+<<<<<<< HEAD
+=======
+{-
+>>>>>>> upstream/master
 share [ mkPersist sqlSettings ]
     DD.entityDefs
+-}
 
 -- These handlers embed files in the executable at compile time to avoid a
 -- runtime dependency, and for efficiency.

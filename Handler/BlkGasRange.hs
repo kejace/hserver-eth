@@ -3,9 +3,9 @@ module Handler.BlkGasRange where
 import Import
 
 import Handler.Common
+import Blockchain.Data.DataDefs
 
 import Data.Aeson
-import qualified Blockchain.Data.DataDefs as DD
 import Data.ByteString.Lazy as BS
 import Database.Persist
 import Database.Persist.TH

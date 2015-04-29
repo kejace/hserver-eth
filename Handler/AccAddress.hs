@@ -5,6 +5,7 @@ import Import
 
 
 import Handler.Common
+import Blockchain.Data.DataDefs
 
 import Database.Persist       
 import Database.Persist.TH
@@ -13,7 +14,6 @@ import qualified Prelude as P
 import Blockchain.Data.Address
 import Blockchain.ExtWord
 import Numeric
-import qualified Blockchain.Data.DataDefs as DD
        
 
 import qualified Data.Text as T

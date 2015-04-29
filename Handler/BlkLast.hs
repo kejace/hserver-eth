@@ -3,8 +3,10 @@ module Handler.BlkLast where
 import Import
 
 import Handler.Common
+import Blockchain.Data.DataDefs
 
 import Data.Aeson
+
 import Data.ByteString.Lazy as BS
 import Database.Persist
 import Database.Persist.TH
@@ -15,7 +17,7 @@ import qualified Database.Esqueleto as E
 import Data.List
 
 
-import Handler.Common (fetchLimit)
+import Handler.Common 
        
 import qualified Prelude as P
 

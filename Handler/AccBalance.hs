@@ -12,6 +12,7 @@ import Database.Persist.TH
 import Database.Persist.Postgresql
 
 import Handler.Common
+import Blockchain.Data.DataDefs
 import Data.List
        
 import qualified Prelude as P

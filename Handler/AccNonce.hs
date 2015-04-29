@@ -5,6 +5,7 @@ import Import
 import Database.Persist       
 import Database.Persist.TH
 import Database.Persist.Postgresql
+import Blockchain.Data.DataDefs
 import qualified Prelude as P
 import qualified Database.Esqueleto as E
 
