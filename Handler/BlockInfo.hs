@@ -77,13 +77,18 @@ getFilter (bdRef, accStateRef, rawTX, blk) ("time", v)      = bdRef E.^. BlockDa
 getFilter (bdRef, accStateRef, rawTX, blk) ("mintime", v)   = bdRef E.^. BlockDataRefTimestamp E.>=. E.val (stringToDate v)
 getFilter (bdRef, accStateRef, rawTX, blk) ("maxtime", v)   = bdRef E.^. BlockDataRefTimestamp E.<=. E.val (stringToDate v)
 
-getFilter (bdRef, accStateRef, rawTX, blk) ("txaddress", v) = rawTX E.^. RawTransactionBlockId E.==. blk E.^. BlockId
-
---getFilter (bdRef, accStateRef, rawTX, blk) ("coinbase", v)  = bdRef E.^. BlockDataRefCoinbase E.==. E.val (Address wd160)
---      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
+getFilter (bdRef, accStateRef, rawTX, blk) ("txaddress", v) = (rawTX E.^. RawTransactionBlockId E.==. blk E.^. BlockId)
+                                                              E.&&. ((rawTX E.^. RawTransactionFromAddress E.==. E.val (Address wd160)))
+                                                                      E.||. (rawTX E.^. RawTransactionToAddress E.==. E.val (Just (Address wd160)))
+                                                              
+      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
 
 getFilter (bdRef, accStateRef, rawTX, blk) ("coinbase", v) = bdRef E.^. BlockDataRefCoinbase E.==. E.val (Address wd160)
-      where ((wd160, _):_) = readHex $ T.unpack $ (P.read $ ("\"" P.++ (T.unpack v) P.++ "\"") ):: [(Word160,String)]
+      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
+
+
+--getFilter (bdRef, accStateRef, rawTX, blk) ("coinbase", v) = bdRef E.^. BlockDataRefCoinbase E.==. E.val (Address wd160)
+--      where ((wd160, _):_) = readHex $ T.unpack $ (P.read $ ("\"" P.++ (T.unpack v) P.++ "\"") ):: [(Word160,String)]
 
 
 blockIdRef :: (E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity Block))-> expr (E.Value Bool)
@@ -95,7 +100,7 @@ getBlockInfoR = do
                    liftIO $ traceIO $ show getParameters
                    addHeader "Access-Control-Allow-Origin" "*"
                    blks <- runDB $ E.select $
-                                        E.from $ \(bdRef `E.InnerJoin` blk `E.InnerJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
+                                        E.from $ \(blk `E.LeftOuterJoin` bdRef `E.LeftOuterJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
                                         E.where_ ((P.foldl1 (E.&&.) $ P.map (getFilter (bdRef, accStateRef, rawTX, blk)) $ getParameters ))
                                         E.on ( accStateRef E.^. AddressStateRefAddress E.==. rawTX E.^. RawTransactionFromAddress )
                                         E.on ( rawTX E.^. RawTransactionBlockId E.==. blk E.^. BlockId )
