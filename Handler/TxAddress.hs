@@ -20,6 +20,7 @@ import Numeric
 import qualified Data.Text as T
 
 import qualified Database.Esqueleto as E
+import Handler.JsonJuggler
 
 -- Parses addresses from hex      
 getTxAddressR :: Text -> Handler Value
@@ -28,6 +29,6 @@ getTxAddressR address = do
                            addr <- runDB $ selectList ( [ (RawTransactionFromAddress ==. (Address wd160)) ]
                                                         ||. [ RawTransactionToAddress ==. (Just (Address wd160)) ] )
                                    [ LimitTo (fromIntegral $ fetchLimit :: Int), Desc RawTransactionNonce  ] :: Handler [Entity RawTransaction]
-                           returnJson $ P.map entityVal addr
+                           returnJson $ P.map rtToRtPrime (P.map entityVal (addr :: [Entity RawTransaction]))
                          where
                            ((wd160, _):_) = readHex $ T.unpack $ address ::  [(Word160,String)]

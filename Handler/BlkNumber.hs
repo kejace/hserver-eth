@@ -29,4 +29,5 @@ getBlkNumberR n       =         do addHeader "Access-Control-Allow-Origin" "*"
                                         E.from $ \(a, t) -> do
                                         E.where_ ( (a E.^. BlockDataRefNumber E.==. E.val n ) E.&&. ( a E.^. BlockDataRefBlockId E.==. t E.^. BlockId))
                                         return t
-                                   returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
+                                   returnJson $ nub $ P.map bToBPrime (P.map entityVal (blks :: [Entity Block] )) -- consider removing nub - it takes time n^{2}
+                               

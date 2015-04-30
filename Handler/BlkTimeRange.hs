@@ -21,8 +21,7 @@ import Data.Time.Format
 import qualified Prelude as P
 
 import Debug.Trace
-
-import Control.Monad.IO.Class (liftIO)
+import Handler.JsonJuggler
 
 getBlkTimeRangeR :: UTCTime -> UTCTime -> Handler Value
 getBlkTimeRangeR g1 g2 = do addHeader "Access-Control-Allow-Origin" "*"
@@ -33,4 +32,4 @@ getBlkTimeRangeR g1 g2 = do addHeader "Access-Control-Allow-Origin" "*"
                                E.orderBy [E.desc (a E.^. BlockDataRefNumber)]
                                E.limit $ fetchLimit
                                return t
-                            returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
+                            returnJson $ nub $ P.map bToBPrime (P.map entityVal (blks :: [Entity Block])) -- consider removing nub - it takes time n^{2}

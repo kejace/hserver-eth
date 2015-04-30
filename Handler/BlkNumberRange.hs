@@ -17,6 +17,7 @@ import qualified Database.Esqueleto as E
 import Data.List
        
 import qualified Prelude as P
+import Handler.JsonJuggler
        
 getFilter :: (E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity Block))-> (Integer, Integer) -> expr (E.Value Bool)
 getFilter (bdr, block) (n1, n2) = ( (bdr E.^. BlockDataRefNumber E.>=. E.val n1 ) E.&&. (bdr E.^. BlockDataRefNumber E.<=. E.val n2)  E.&&. ( bdr E.^. BlockDataRefBlockId E.==. block E.^. BlockId))
@@ -30,4 +31,4 @@ getBlkNumberRangeR n1 n2      = do addHeader "Access-Control-Allow-Origin" "*"
                                         E.orderBy [E.asc (bdr E.^. BlockDataRefNumber)]
                                         E.limit $ fetchLimit
                                         return block
-                                   returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
+                                   returnJson $ nub $ P.map bToBPrime (P.map entityVal (blks :: [Entity Block])) -- consider removing nub - it takes time n^{2}

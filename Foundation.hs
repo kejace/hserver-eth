@@ -11,8 +11,8 @@ import Text.Jasmine         (minifym)
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
-
-
+import Blockchain.Data.Address
+import Numeric
 import System.Locale
 import Data.Time
 import Data.Time.Format
@@ -21,6 +21,8 @@ import qualified Data.Text.Encoding as T
 import qualified Prelude as P
 
 import Data.Maybe
+
+import Blockchain.Data.PersistTypes
 
 import Debug.Trace
 debug = flip trace
@@ -36,18 +38,6 @@ instance PathPiece UTCTime where
     toPathPiece t = T.pack $ show t `debug` "PathPieceTo"
     fromPathPiece s = Just time `debug` ("PathPiece: " ++ show time) where
        time = stringToDate s `debug` ("PathPieceFrom: " ++ show s)
-
-data BlockDataRef' = BlockDataRef' BlockDataRef deriving (Eq, Show)
-
-instance ToJSON BlockDataRef' where
-    toJSON b = "BlockDataRef'" -- object ["x" .= "got BlockDataRef'"]
-
-bdrToBdrPrime :: BlockDataRef -> BlockDataRef'
-bdrToBdrPrime x = BlockDataRef' x
-
-specType :: Entity BlockDataRef ->  BlockDataRef'
---specType z@(Entity BlockDataRef) = bdrToBdrPrime $ entityVal z
-specType a = bdrToBdrPrime . entityVal $ a
 
 
 -- | The foundation datatype for your application. This can be a good place to

@@ -35,4 +35,4 @@ getBlkIdR n = do addHeader "Access-Control-Allow-Origin" "*"
                          E.from $ \(a, t) -> do
                            E.where_ ( (a E.^. BlockDataRefNumber E.==. E.val n ) E.&&. ( a E.^. BlockDataRefBlockId E.==. t E.^. BlockId)) ---- :: Handler [Entity AddressStateRef]
                            return a
-                 returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
+                 returnJson $ nub $ P.map bdrToBdrPrime (P.map entityVal (blks :: [Entity BlockDataRef])) -- consider removing nub - it takes time n^{2}

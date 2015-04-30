@@ -53,6 +53,7 @@ import Numeric
 import Yesod.Core.Handler
 
 import Debug.Trace
+import Handler.JsonJuggler
 
 getFilter::(E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity AddressStateRef), expr (Entity RawTransaction), expr (Entity Block))-> (Text, Text) -> expr (E.Value Bool)
 
@@ -105,7 +106,7 @@ getBlockInfoR = do
                                         
                                         E.orderBy [E.desc (bdRef E.^. BlockDataRefNumber)]
                                         return blk
-                   returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
+                   returnJson $ nub $ P.map bToBPrime (P.map entityVal (blks :: [Entity Block])) -- consider removing nub - it takes time n^{2}
 
 
     {-

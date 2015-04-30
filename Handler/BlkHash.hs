@@ -23,7 +23,7 @@ import qualified Database.Esqueleto as E
 import Data.List
 import qualified Data.Text.Encoding as T        
 import qualified Prelude as P
-
+import Handler.JsonJuggler
 
 getBlkHashR :: Text -> Handler Value
 getBlkHashR h =                 do addHeader "Access-Control-Allow-Origin" "*"
@@ -31,5 +31,5 @@ getBlkHashR h =                 do addHeader "Access-Control-Allow-Origin" "*"
                                         E.from $ \(a, t) -> do
                                         E.where_ ( (a E.^. BlockDataRefHash E.==. E.val ( SHA . fromIntegral . byteString2Integer . fst. B16.decode $ T.encodeUtf8 $ h ) ) E.&&. ( a E.^. BlockDataRefBlockId E.==. t E.^. BlockId))
                                         return t
-                                   returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
+                                   returnJson $ nub $ P.map bToBPrime (P.map entityVal (blks :: [Entity Block])) -- consider removing nub - it takes time n^{2}
 
