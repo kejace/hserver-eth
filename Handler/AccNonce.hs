@@ -13,6 +13,7 @@ import Data.List
 import Handler.Common
 
 import qualified Data.Text as T
+import Handler.JsonJuggler
        
 -- Parses addresses from hex      
 getAccNonceR :: Integer -> Handler Value
@@ -22,6 +23,6 @@ getAccNonceR nonce =   do
                                         E.from $ \(acc) -> do
                                         E.where_ ( (acc E.^. AddressStateRefNonce E.==. E.val nonce ) )
                                         return acc
-                                   returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
+                                   returnJson $ nub $ P.map asrToAsrPrime (P.map entityVal blks :: [AddressStateRef]) -- consider removing nub - it takes time n^{2}
 
 

@@ -32,6 +32,8 @@ library
                      Handler.BlkGas
                      Handler.BlkGasRange
                      Handler.BlkNumberRange
+                     Handler.BlkTimeRange
+                     Handler.BlkId
                      Handler.AccAddress
                      Handler.AccNonce
                      Handler.AccBalance
@@ -39,6 +41,8 @@ library
                      Handler.BlkHash
                      Handler.BlkLast
                      Handler.Demo
+                     Handler.JsonJuggler
+                     Handler.BlkCoinbase
 
 
     if flag(dev) || flag(library-only)
@@ -103,7 +107,9 @@ library
                  , esqueleto
                  , ethereum-rlp
                  , base16-bytestring
+                 , old-locale
                  , ethereum-util
+                 , transformers
 
 executable         api
     if flag(library-only)

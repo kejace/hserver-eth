@@ -13,11 +13,6 @@ import Blockchain.Data.Transaction
 
 import qualified Data.ByteString as BS
 
-{-
-share [ mkPersist sqlSettings ]
-    DD.entityDefs
--}
-
 -- These handlers embed files in the executable at compile time to avoid a
 -- runtime dependency, and for efficiency.
 

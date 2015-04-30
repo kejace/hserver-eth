@@ -1,3 +1,5 @@
+{-# OverlappingInstances #-}
+
 module Foundation where
 
 import Import.NoFoundation
@@ -9,6 +11,34 @@ import Text.Jasmine         (minifym)
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
+import Blockchain.Data.Address
+import Numeric
+import System.Locale
+import Data.Time
+import Data.Time.Format
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
+import qualified Prelude as P
+
+import Data.Maybe
+
+import Blockchain.Data.PersistTypes
+
+import Debug.Trace
+debug = flip trace
+
+timeFormat = "%Y-%m-%dT%T.%q"
+
+stringToDate :: Text -> UTCTime
+stringToDate s = time where
+    time  = readTime defaultTimeLocale timeFormat $ picos
+    picos = (P.init (T.unpack s)) ++ replicate 9 '0'
+
+instance PathPiece UTCTime where
+    toPathPiece t = T.pack $ show t `debug` "PathPieceTo"
+    fromPathPiece s = Just time `debug` ("PathPiece: " ++ show time) where
+       time = stringToDate s `debug` ("PathPieceFrom: " ++ show s)
+
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application

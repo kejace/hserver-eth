@@ -14,6 +14,9 @@
 /query/block/gas/#Integer BlkGasR GET
 /query/block/gasrange/lower/#Integer/upper/#Integer BlkGasRangeR GET
 /query/block/numberrange/lower/#Integer/upper/#Integer BlkNumberRangeR GET
+/query/block/timerange/lower/#UTCTime/upper/#UTCTime BlkTimeRangeR GET
+/query/block/blockid/#Integer BlkIdR GET
+/query/block/coinbase/#Text BlkCoinbaseR GET
 /query/account/address/#Text AccAddressR GET
 /query/account/nonce/#Integer AccNonceR GET
 /query/account/balance/#Integer AccBalanceR GET
