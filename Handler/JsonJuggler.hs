@@ -9,6 +9,7 @@ import Handler.Common
 import Blockchain.Data.DataDefs
 import Blockchain.Data.Address
 import Blockchain.Data.PersistTypes
+import Blockchain.Data.Transaction
 
 import Data.Aeson
 import Data.ByteString.Lazy as BS
@@ -39,7 +40,18 @@ instance ToJSON RawTransaction' where
 rtToRtPrime :: RawTransaction -> RawTransaction'
 rtToRtPrime x = RawTransaction' x
 
-tToTPrime = P.id
+data Transaction' = Transaction' Transaction deriving (Eq, Show)
+
+instance ToJSON Transaction' where
+    toJSON (Transaction' (MessageTX tnon tgp tgl tto tval td tr ts tv)) = 
+        object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "to" .= tto, "value" .= tval,
+        "data" .= td, "r" .= tr, "s" .= ts, "v" .= tv]
+    toJSON (Transaction' (ContractCreationTX tnon tgp tgl tval ti tr ts tv)) = 
+        object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "value" .= tval, "init" .= ti,
+        "r" .= tr, "s" .= ts, "v" .= tv]
+
+tToTPrime :: Transaction -> Transaction'
+tToTPrime x = Transaction' x
 
 data Block' = Block' Block deriving (Eq, Show)
 
