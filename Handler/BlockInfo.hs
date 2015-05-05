@@ -100,16 +100,19 @@ getBlockInfoR = do
                    liftIO $ traceIO $ show getParameters
                    addHeader "Access-Control-Allow-Origin" "*"
                    blks <- runDB $ E.select $
-                                        E.from $ \(blk `E.LeftOuterJoin` bdRef `E.LeftOuterJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
-                                        E.where_ ((P.foldl1 (E.&&.) $ P.map (getFilter (bdRef, accStateRef, rawTX, blk)) $ getParameters ))
+                                        E.from $ \(blk `E.InnerJoin` bdRef `E.FullOuterJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
+                                        
                                         E.on ( accStateRef E.^. AddressStateRefAddress E.==. rawTX E.^. RawTransactionFromAddress )
-                                        E.on ( rawTX E.^. RawTransactionBlockId E.==. blk E.^. BlockId )
-                                        E.on ( blk E.^. BlockId E.==. bdRef E.^. BlockDataRefBlockId )
-                                        
+                                        E.on ( rawTX E.^. RawTransactionBlockId E.==. bdRef E.^. BlockDataRefBlockId )
+                                        E.on ( bdRef E.^. BlockDataRefBlockId E.==. blk E.^. BlockId )                                        
 
-                                        E.limit $ fetchLimit
-                                        
+
+                                        E.where_ ((P.foldl1 (E.&&.) $ P.map (getFilter (bdRef, accStateRef, rawTX, blk)) $ getParameters ))
+
+                                        E.limit $ (fetchLimit)
+
                                         E.orderBy [E.desc (bdRef E.^. BlockDataRefNumber)]
+
                                         return blk
                    returnJson $ nub $ P.map bToBPrime (P.map entityVal (blks :: [Entity Block])) -- consider removing nub - it takes time n^{2}
 
