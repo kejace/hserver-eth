@@ -131,3 +131,4 @@ rawTransactionSemantics :: RawTransaction -> TransactionType
 rawTransactionSemantics t@(RawTransaction fa non gp gl ta val cod v r s bid) = work
      where work | (not (isAddr ta)) && ((Data.ByteString.length cod) > 0)   = Contract
                 | (isAddr ta) &&  ((Data.ByteString.length cod) > 0)        = FunctionCall
+                | otherwise = Withdrawal
