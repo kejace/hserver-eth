@@ -50,7 +50,7 @@ instance ToJSON Transaction' where
         "data" .= td, "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= FunctionCall]
     toJSON (Transaction' (ContractCreationTX tnon tgp tgl tval ti tr ts tv)) = 
         object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "value" .= tval, "init" .= ti,
-        "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= Credit]
+        "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= Contract ]
 
 tToTPrime :: Transaction -> Transaction'
 tToTPrime x = Transaction' x
@@ -111,7 +111,7 @@ adToAdPrime x = Address' x
 instance ToJSON Address' where
   toJSON (Address' x) = object [ "address" .= (showHex x "") ]
 
-data TransactionType = Contract | FunctionCall | Withdrawal | Credit deriving (Eq, Show)
+data TransactionType = Contract | FunctionCall | Transfer deriving (Eq, Show)
 
 instance ToJSON TransactionType where 
    toJSON x = object ["transactiontype" .= show x]
@@ -131,4 +131,4 @@ rawTransactionSemantics :: RawTransaction -> TransactionType
 rawTransactionSemantics t@(RawTransaction fa non gp gl ta val cod v r s bid) = work
      where work | (not (isAddr ta)) && ((Data.ByteString.length cod) > 0)   = Contract
                 | (isAddr ta) &&  ((Data.ByteString.length cod) > 0)        = FunctionCall
-                | otherwise = Withdrawal
+                | otherwise = Transfer
