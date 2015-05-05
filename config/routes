@@ -24,5 +24,6 @@
 /query/block/difficulty/#Integer BlkDifficultyR GET
 /query/block/hash/#Text BlkHashR GET
 /query/block/last/#Integer BlkLastR GET
+/query/block/txaddress/#Text BlkTxAddressR GET
 /demo/ DemoR GET
 

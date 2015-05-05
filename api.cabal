@@ -42,8 +42,8 @@ library
                      Handler.BlkLast
                      Handler.Demo
                      Handler.JsonJuggler
-                     Handler.BlkCoinbase
-
+                     Handler.BlkCoinbase,
+                     Handler.BlkTxAddress
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
