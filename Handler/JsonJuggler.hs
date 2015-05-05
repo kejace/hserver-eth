@@ -111,7 +111,7 @@ adToAdPrime x = Address' x
 --instance ToJSON Address' where
 --  toJSON (Address' x) = object [ "address" .= (showHex x "") ]
 
-data TransactionType = Contract | FunctionCall | Withdrawal deriving (Eq, Show)
+data TransactionType = Contract | FunctionCall | Transfer deriving (Eq, Show)
 
 --instance ToJSON TransactionType where 
 --   toJSON x = object ["transactionType" .= show x]
@@ -131,4 +131,4 @@ rawTransactionSemantics :: RawTransaction -> TransactionType
 rawTransactionSemantics t@(RawTransaction fa non gp gl ta val cod v r s bid) = work
      where work | (not (isAddr ta)) && ((Data.ByteString.length cod) > 0)   = Contract
                 | (isAddr ta) &&  ((Data.ByteString.length cod) > 0)        = FunctionCall
-                | otherwise = Withdrawal
+                | otherwise = Transfer
