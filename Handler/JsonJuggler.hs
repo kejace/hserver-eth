@@ -34,10 +34,10 @@ jsonBlk a = returnJson a
 data RawTransaction' = RawTransaction' RawTransaction deriving (Eq, Show)
 
 instance ToJSON RawTransaction' where
-    toJSON (RawTransaction' rt@(RawTransaction fa non gp gl ta val cod v r s bid)) =
-        object ["from" .= adToAdPrime fa, "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
-        "to" .= fmap adToAdPrime ta , "value" .= val, "codeOrData" .= cod, "v" .= v, "r" .= r, "s" .= s,
-        "blockId" .= bid, "transactionType" .=  rawTransactionSemantics rt]
+    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl ta val cod v r s bid)) =
+        object ["from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
+        "to" .= fmap show ta , "value" .= val, "codeOrData" .= cod, "v" .= v, "r" .= r, "s" .= s,
+        "blockId" .= bid, "transactionType" .= (show $ rawTransactionSemantics rt)]
 
 rtToRtPrime :: RawTransaction -> RawTransaction'
 rtToRtPrime x = RawTransaction' x
@@ -47,10 +47,10 @@ data Transaction' = Transaction' Transaction deriving (Eq, Show)
 instance ToJSON Transaction' where
     toJSON (Transaction' (MessageTX tnon tgp tgl tto tval td tr ts tv)) = 
         object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "to" .= tto, "value" .= tval,
-        "data" .= td, "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= FunctionCall]
+        "data" .= td, "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show FunctionCall)]
     toJSON (Transaction' (ContractCreationTX tnon tgp tgl tval ti tr ts tv)) = 
         object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "value" .= tval, "init" .= ti,
-        "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= Credit]
+        "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show Contract)]
 
 tToTPrime :: Transaction -> Transaction'
 tToTPrime x = Transaction' x
@@ -108,13 +108,13 @@ asrToAsrPrime x = AddressStateRef' x
 data Address' = Address' Address deriving (Eq, Show)
 adToAdPrime x = Address' x
 
-instance ToJSON Address' where
-  toJSON (Address' x) = object [ "address" .= (showHex x "") ]
+--instance ToJSON Address' where
+--  toJSON (Address' x) = object [ "address" .= (showHex x "") ]
 
-data TransactionType = Contract | FunctionCall | Withdrawal | Credit deriving (Eq, Show)
+data TransactionType = Contract | FunctionCall | Withdrawal deriving (Eq, Show)
 
-instance ToJSON TransactionType where 
-   toJSON x = object ["transactiontype" .= show x]
+--instance ToJSON TransactionType where 
+--   toJSON x = object ["transactionType" .= show x]
 
 transactionSemantics :: Transaction -> TransactionType
 transactionSemantics t@(MessageTX tnon tgp tgl tto@(Address x) tval td tr ts tv) = work
