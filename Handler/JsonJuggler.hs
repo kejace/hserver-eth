@@ -34,10 +34,16 @@ jsonBlk a = returnJson a
 data RawTransaction' = RawTransaction' RawTransaction deriving (Eq, Show)
 
 instance ToJSON RawTransaction' where
-    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl ta val cod v r s bid)) =
+    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl (Just (Address ta)) val cod v r s bid)) =
         object ["from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
-        "to" .= fmap show ta , "value" .= val, "codeOrData" .= cod, "v" .= v, "r" .= r, "s" .= s,
+        "to" .= showHex ta "" , "value" .= val, "codeOrData" .= cod, "v" .= v, "r" .= r, "s" .= s,
         "blockId" .= bid, "transactionType" .= (show $ rawTransactionSemantics rt)]
+    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl Nothing val cod v r s bid)) =
+        object ["from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
+        "value" .= val, "codeOrData" .= cod, "v" .= v, "r" .= r, "s" .= s,
+        "blockId" .= bid, "transactionType" .= (show $ rawTransactionSemantics rt)]
+
+
 
 rtToRtPrime :: RawTransaction -> RawTransaction'
 rtToRtPrime x = RawTransaction' x
