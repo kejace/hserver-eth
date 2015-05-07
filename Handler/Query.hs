@@ -18,7 +18,7 @@ getQueryR = do
                                         Resources are located via GET routes. Requests are routed by the return type - blocks, accounts or transactions. We have
                                         a few pre-built simple routes, and support a general querystring syntax.
                                         
-                                        Routes are meant to be invoked via XMLHttpRequest and return raw JSON. To see an example of parsed json, look at <a href="/demo">here</a>.
+                                        Routes are meant to be invoked via XMLHttpRequest and return raw JSON. To see an example of parsed json, look at <a href="/index.html">here</a>.
 
                                         <h2> Blocks are fetchable by a variety of queries! 
                                         <p>
