@@ -9,6 +9,7 @@ import Blockchain.Data.DataDefs
 import Blockchain.Data.Address
 import Blockchain.Data.PersistTypes
 import Blockchain.Data.Transaction
+import Blockchain.Data.Code
 
 import Data.Aeson
 import Data.ByteString.Lazy as BS
@@ -17,6 +18,7 @@ import Database.Persist.TH
 import Database.Persist.Postgresql
 import Data.ByteString
 
+import qualified Data.ByteString as B
 import qualified Database.Esqueleto as E
 
 import Numeric
@@ -51,12 +53,12 @@ rtToRtPrime x = RawTransaction' x
 data Transaction' = Transaction' Transaction deriving (Eq, Show)
 
 instance ToJSON Transaction' where
-    toJSON (Transaction' (MessageTX tnon tgp tgl tto tval td tr ts tv)) = 
+    toJSON (Transaction' tx@(MessageTX tnon tgp tgl tto tval td tr ts tv)) = 
         object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "to" .= tto, "value" .= tval,
-        "data" .= td, "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show FunctionCall)]
-    toJSON (Transaction' (ContractCreationTX tnon tgp tgl tval ti tr ts tv)) = 
+        "data" .= td, "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show $ transactionSemantics $ tx)]
+    toJSON (Transaction' tx@(ContractCreationTX tnon tgp tgl tval ti tr ts tv)) = 
         object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "value" .= tval, "init" .= ti,
-        "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show Contract)]
+        "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show $ transactionSemantics $ tx)]
 
 tToTPrime :: Transaction -> Transaction'
 tToTPrime x = Transaction' x
@@ -117,16 +119,19 @@ adToAdPrime x = Address' x
 --instance ToJSON Address' where
 --  toJSON (Address' x) = object [ "address" .= (showHex x "") ]
 
-data TransactionType = Contract | FunctionCall | Transfer deriving (Eq, Show)
+data TransactionType = Contract | FunctionCall | Transfer | JustTheSig deriving (Eq, Show)
 
 --instance ToJSON TransactionType where 
 --   toJSON x = object ["transactionType" .= show x]
 
 transactionSemantics :: Transaction -> TransactionType
 transactionSemantics t@(MessageTX tnon tgp tgl tto@(Address x) tval td tr ts tv) = work
-    where work | P.length (showHex x "") > 0      = FunctionCall
-               | P.length (showHex x "") == 0     = FunctionCall
-transactionSemantics t@(ContractCreationTX tnon tgp tgl tval ti tr ts tv) = Contract
+    where work | (B.length td) > 0 = FunctionCall
+               | tval > 0  = Transfer
+               | otherwise = JustTheSig
+transactionSemantics t@(ContractCreationTX tnon tgp tgl tval (Code ti) tr ts tv)
+     | (B.length ti > 0) || (tval > 0) = Contract
+     | otherwise = JustTheSig                                   
 
 isAddr :: Maybe Address -> Bool
 isAddr a = case a of
@@ -137,4 +142,5 @@ rawTransactionSemantics :: RawTransaction -> TransactionType
 rawTransactionSemantics t@(RawTransaction fa non gp gl ta val cod v r s bid) = work
      where work | (not (isAddr ta)) && ((Data.ByteString.length cod) > 0)   = Contract
                 | (isAddr ta) &&  ((Data.ByteString.length cod) > 0)        = FunctionCall
+                | (not (isAddr ta)) && ((Data.ByteString.length cod) == 0) = JustTheSig                                                              
                 | otherwise = Transfer
