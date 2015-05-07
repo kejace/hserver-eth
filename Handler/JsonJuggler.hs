@@ -103,7 +103,7 @@ data AddressStateRef' = AddressStateRef' AddressStateRef deriving (Eq, Show)
 
 instance ToJSON AddressStateRef' where
     toJSON (AddressStateRef' (AddressStateRef a@(Address x) n b cr ch)) = 
-        object ["address" .= (showHex x ""), "nonce" .= n, "balance" .= b, 
+        object ["address" .= (showHex x ""), "nonce" .= n, "balance" .= show b, 
         "contractRoot" .= cr, "codeHash" .= ch]
 
 asrToAsrPrime :: AddressStateRef -> AddressStateRef'
