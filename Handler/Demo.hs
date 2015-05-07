@@ -11,3 +11,6 @@ getDemoR = defaultLayout $ do
 getAddressExplorerR :: Handler ()
 getAddressExplorerR = sendFile "text/js" "static/js/address-explorer.js"
 
+getAddressExplorerCSSR :: Handler ()
+getAddressExplorerCSSR = sendFile "text/css" "static/css/address-explorer.css"
+

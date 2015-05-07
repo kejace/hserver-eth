@@ -8,6 +8,7 @@
 /query/ QueryR GET
 
 /address-explorer.js AddressExplorerR GET
+/address-explorer.css AddressExplorerCSSR GET
 
 -- /query/transaction TransactionInfoR GET
 /query/block BlockInfoR GET
