@@ -30,7 +30,6 @@ import Prelude as P
 jsonBlk :: (ToJSON a, Monad m) => a -> m Value
 jsonBlk a = returnJson a
 
-
 data RawTransaction' = RawTransaction' RawTransaction deriving (Eq, Show)
 
 instance ToJSON RawTransaction' where
@@ -103,7 +102,6 @@ asrToAsrPrime x = AddressStateRef' x
 
 --jsonFix x@(AddressStateRef a b c d e) = AddressStateRef' x
 --jsonFix x@(BlockDataRef a b c d e f g h i j k l m n o p q) = BlockDataRef' x
-
 
 data Address' = Address' Address deriving (Eq, Show)
 adToAdPrime x = Address' x

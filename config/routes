@@ -17,6 +17,8 @@
 /query/block/timerange/lower/#UTCTime/upper/#UTCTime BlkTimeRangeR GET
 /query/block/blockid/#Integer BlkIdR GET
 /query/block/coinbase/#Text BlkCoinbaseR GET
+-- /query/block/coinbasep/#Text BlkCoinbaseR' GET
+/query/block/coinbasenum/#Text BlkCoinbaseNumR GET
 /query/account/address/#Text AccAddressR GET
 /query/account/nonce/#Integer AccNonceR GET
 /query/account/balance/#Integer AccBalanceR GET
@@ -26,4 +28,3 @@
 /query/block/last/#Integer BlkLastR GET
 /query/block/txaddress/#Text BlkTxAddressR GET
 /demo/ DemoR GET
-
