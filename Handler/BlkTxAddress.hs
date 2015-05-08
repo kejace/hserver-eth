@@ -52,13 +52,11 @@ import Numeric
 
 import Yesod.Core.Handler
 
-import Debug.Trace
+-- import Debug.Trace
 import Handler.JsonJuggler
 
 getBlkTxAddressR :: Text -> Handler Value
 getBlkTxAddressR address = do
-  	           getParameters <- reqGetParams <$> getRequest
-                   liftIO $ traceIO $ show getParameters
                    addHeader "Access-Control-Allow-Origin" "*"
                    blks <- runDB $ E.select $
                                         E.from $ \(blk `E.InnerJoin` bdRef `E.FullOuterJoin` rawTX) -> do

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BlockApps Address Explorer Example</title>
+  <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" rel="stylesheet">
+  <link href="./address-explorer.css" rel='stylesheet' type='text/css'>
+  <script src="./address-explorer.js"></script>
+</head>
+<body>
+  <div class="background"></div>
+  <div id="address_view" class="view visible center">
+    <div>
+      <label for="address">Enter Ethereum Address</label>
+      <input id="address" type="text" value="6a56cf7a57405800b18e3e0940628c190cfa73bc"></input>
+      <br><button id="view_account">View Account</button>
+    </div>
+    
+  </div>
+  <div id="account_view" class="view hidden">
+    <div class="container">
+      <h1 class="ten columns">
+        Your Account <span id="address_entered"></span></h1>
+      </h1>
+      <div class="two columns">
+        <button id="refresh">
+          Refresh
+        </button>
+      </div>
+
+      <div class="five columns">
+        <span class="icon">&Escr;</span><span id="displayed_balance" class="value">&nbsp;</span>
+        <br><span class="label">Total Balance</span>
+      </div>
+      <div class="four columns">
+        <span class="icon">&duarr;</span><span id="transaction_count" class="value">&nbsp;</span>
+        <br><span class="label">Transactions</span>
+      </div>
+      <div class="two columns">
+        <span class="icon">&plusb;</span><span id="blocks_mined_count" class="value">&nbsp;</span>
+        <br><span class="label">Blocks Mined</span>
+      </div>
+
+      <h4 class="twelve columns">Activity</h4>
+    </div>
+  </div>
+</body>
+</html> 
