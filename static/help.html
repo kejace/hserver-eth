@@ -1,0 +1,45 @@
+<h2 id="endpoints">Endpoints</h2>
+<p>There are three REST endopoints, corrensponding to the query of a block, address and a transaction, respectively.</p>
+<h3 id="queryblock"><code>/query/block?</code></h3>
+<ul>
+<li><code>number</code>, <code>maxnumber</code>, <code>minnumber</code></li>
+<li><code>nonce</code>, <code>maxnonce</code>, <code>minnonce</code></li>
+<li><code>gas</code>, <code>maxgas</code>, <code>mingas</code><br /></li>
+<li><code>gaslim</code>, <code>maxgaslim</code>, <code>mingaslim</code></li>
+<li><code>gasused</code>, <code>maxgasused</code>, <code>mingasused</code></li>
+<li><code>diff</code>, <code>maxdiff</code>, <code>mindiff</code></li>
+<li><code>time</code>, <code>maxtime</code>, <code>mintime</code></li>
+<li><code>txaddress</code> (supports pages)</li>
+<li><code>coinbase</code></li>
+<li><code>blockid</code></li>
+</ul>
+<h3 id="queryaddress"><code>/query/address?</code></h3>
+<ul>
+<li><code>balance</code>, <code>minbalance</code>, <code>maxbalance</code><br /></li>
+<li><code>nonce</code>, <code>minnonce</code>, <code>maxnonce</code></li>
+<li><code>address</code> (supports pages)</li>
+</ul>
+<h3 id="querytransaction"><code>/query/transaction?</code></h3>
+<ul>
+<li><code>from</code>, <code>to</code>, <code>address</code></li>
+<li><code>blockid</code></li>
+<li><code>value</code>, <code>maxvalue</code>, <code>minvalue</code></li>
+<li><code>gasprice</code>, <code>maxgasprice</code>, <code>mingasprice</code></li>
+<li><code>gaslimit</code>, <code>maxgaslimit</code>, <code>mingaslimit</code></li>
+</ul>
+<h2 id="there-are-also-fixed-endpoints-to-be-deprecated">There are also fixed endpoints (to be deprecated)</h2>
+<p>Pages (where supported) start from 0 and are appended to the string in the end, like <code>/query/block?address=xxx/2</code>. This will eventually move into the general query string. They are optional.</p>
+<ul>
+<li><code>/query/transaction/address/xxxxxxx</code> or <code>/query/transaction/address/xxxxxxx/0</code></li>
+<li><code>/query/account/address/xxxxxxx</code> or <code>/query/account/address/xxxxxxx/12</code></li>
+<li><code>/query/block/txaddress/xxxxxxxx</code> or <code>/query/block/txaddress/xxxxxxxx/2</code></li>
+</ul>
+<h2 id="types-of-transactions">Types of transactions</h2>
+<h3 id="functioncall">FunctionCall</h3>
+<p>If <code>toAddress == Null</code> and <code>len(code) &gt; 0</code> we have a <code>FunctionCall</code>.</p>
+<h3 id="contract">Contract</h3>
+<p>If <code>toAddress != Null</code> and <code>len(code) &gt; 0</code> we have a <code>Contract</code>.</p>
+<h3 id="transaction">Transaction</h3>
+<p>If <code>toAddress != Null</code> and <code>len(code) == 0</code> we have a <code>Transaction</code>.</p>
+<h3 id="justthesig">JustTheSig</h3>
+<p>If <code>toAddress == Null</code> and <code>len(code) == 0</code> we have a <code>JustTheSig</code>.</p>

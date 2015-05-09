@@ -73,7 +73,6 @@ getBlockInfoR = do
                                         E.on ( rawTX E.^. RawTransactionBlockId E.==. bdRef E.^. BlockDataRefBlockId )
                                         E.on ( bdRef E.^. BlockDataRefBlockId E.==. blk E.^. BlockId )                                        
 
-
                                         E.where_ ((P.foldl1 (E.&&.) $ P.map (getBlkFilter (bdRef, accStateRef, rawTX, blk)) $ getParameters ))
 
                                         E.limit $ (fetchLimit)

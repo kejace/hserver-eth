@@ -30,8 +30,8 @@ import Import
 getBlkFilter::(E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity AddressStateRef), expr (Entity RawTransaction), expr (Entity Block))-> (Text, Text) -> expr (E.Value Bool)
 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("number", v)    = bdRef E.^. BlockDataRefNumber E.==. E.val (P.read $ T.unpack v :: Integer)
-getBlkFilter (bdRef, accStateRef, rawTX, blk) ("minnum", v)    = bdRef E.^. BlockDataRefNumber E.>=. E.val (P.read $ T.unpack v :: Integer)
-getBlkFilter (bdRef, accStateRef, rawTX, blk) ("maxnum", v)    = bdRef E.^. BlockDataRefNumber E.<=. E.val (P.read $ T.unpack v :: Integer)
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("minnumber", v)    = bdRef E.^. BlockDataRefNumber E.>=. E.val (P.read $ T.unpack v :: Integer)
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("maxnumber", v)    = bdRef E.^. BlockDataRefNumber E.<=. E.val (P.read $ T.unpack v :: Integer)
 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("gas", v)       = bdRef E.^. BlockDataRefGasUsed E.==. E.val (P.read $ T.unpack v :: Integer) 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("mingas", v)    = bdRef E.^. BlockDataRefGasUsed E.>=. E.val (P.read $ T.unpack v :: Integer) 
@@ -40,6 +40,10 @@ getBlkFilter (bdRef, accStateRef, rawTX, blk) ("maxgas", v)    = bdRef E.^. Bloc
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("gaslim", v)    = bdRef E.^. BlockDataRefGasLimit E.==. E.val (P.read $ T.unpack v :: Integer) 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("mingaslim", v) = bdRef E.^. BlockDataRefGasLimit E.>=. E.val (P.read $ T.unpack v :: Integer) 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("maxgaslim", v) = bdRef E.^. BlockDataRefGasLimit E.<=. E.val (P.read $ T.unpack v :: Integer) 
+
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("gasused", v)    = bdRef E.^. BlockDataRefGasUsed E.==. E.val (P.read $ T.unpack v :: Integer) 
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("mingasused", v) = bdRef E.^. BlockDataRefGasUsed E.>=. E.val (P.read $ T.unpack v :: Integer) 
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("maxgasused", v) = bdRef E.^. BlockDataRefGasUsed E.<=. E.val (P.read $ T.unpack v :: Integer) 
 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("diff", v)      = bdRef E.^. BlockDataRefDifficulty E.==. E.val (P.read $ T.unpack v :: Integer) 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("mindiff", v)   = bdRef E.^. BlockDataRefDifficulty E.>=. E.val (P.read $ T.unpack v :: Integer) 
@@ -50,16 +54,14 @@ getBlkFilter (bdRef, accStateRef, rawTX, blk) ("mintime", v)   = bdRef E.^. Bloc
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("maxtime", v)   = bdRef E.^. BlockDataRefTimestamp E.<=. E.val (stringToDate v)
 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("txaddress", v) = (rawTX E.^. RawTransactionBlockId E.==. blk E.^. BlockId)
-                                                              E.&&. ((rawTX E.^. RawTransactionFromAddress E.==. E.val (Address wd160)))
-                                                                      E.||. (rawTX E.^. RawTransactionToAddress E.==. E.val (Just (Address wd160)))                                                      
-      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
+                                                              E.&&. ((rawTX E.^. RawTransactionFromAddress E.==. E.val (toAddr v)))
+                                                                      E.||. (rawTX E.^. RawTransactionToAddress E.==. E.val (Just (toAddr v)))                                                      
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("coinbase", v)  = bdRef E.^. BlockDataRefCoinbase E.==. E.val (toAddr v)
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("address", v)   = accStateRef E.^. AddressStateRefAddress E.==. E.val (toAddr v)
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("blockid", v)   = bdRef E.^. BlockDataRefBlockId E.==. E.val (toBlockId v)
+                                                              E.&&. ( bdRef E.^. BlockDataRefBlockId E.==. blk E.^. BlockId)
 
-getBlkFilter (bdRef, accStateRef, rawTX, blk) ("coinbase", v) = bdRef E.^. BlockDataRefCoinbase E.==. E.val (Address wd160)
-      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
 
-
-getBlkFilter (bdRef, accStateRef, rawTX, blk) ("address", v)   = accStateRef E.^. AddressStateRefAddress E.==. E.val (Address wd160)
-      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
 
 getAccFilter (accStateRef) ("balance", v)      = accStateRef E.^. AddressStateRefBalance E.==. E.val (P.read $ T.unpack v :: Integer) 
 getAccFilter (accStateRef) ("minbalance", v)   = accStateRef E.^. AddressStateRefBalance E.>=. E.val (P.read $ T.unpack v :: Integer) 
@@ -69,14 +71,30 @@ getAccFilter (accStateRef) ("nonce", v)        = accStateRef E.^. AddressStateRe
 getAccFilter (accStateRef) ("minnonce", v)     = accStateRef E.^. AddressStateRefNonce E.>=. E.val (P.read $ T.unpack v :: Integer)
 getAccFilter (accStateRef) ("maxnonce", v)     = accStateRef E.^. AddressStateRefNonce E.<=. E.val (P.read $ T.unpack v :: Integer)
 
-getAccFilter (accStateRef) ("address", v)      = accStateRef E.^. AddressStateRefAddress E.==. E.val (Address wd160)
-      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
+getAccFilter (accStateRef) ("address", v)      = accStateRef E.^. AddressStateRefAddress E.==. E.val (toAddr v)
 
-getTransFilter (rawTx)     ("address", v)    = rawTx E.^. RawTransactionFromAddress E.==. E.val (Address wd160) E.||. rawTx E.^. RawTransactionToAddress E.==. E.val (Just (Address wd160))
-      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
 
-getTransFilter (rawTx)     ("from", v)    = rawTx E.^. RawTransactionFromAddress E.==. E.val (Address wd160)
-      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
 
-getTransFilter (rawTx)     ("to", v)    = rawTx E.^. RawTransactionToAddress E.==. E.val (Just (Address wd160))
-      where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
+getTransFilter (rawTx)     ("address", v)      = rawTx E.^. RawTransactionFromAddress E.==. E.val (toAddr v) E.||. rawTx E.^. RawTransactionToAddress E.==. E.val (Just (toAddr v))
+getTransFilter (rawTx)     ("from", v)         = rawTx E.^. RawTransactionFromAddress E.==. E.val (toAddr v)
+getTransFilter (rawTx)     ("to", v)           = rawTx E.^. RawTransactionToAddress E.==. E.val (Just (toAddr v))
+
+getTransFilter (rawTx)     ("gasprice", v)     = rawTx E.^. RawTransactionGasPrice E.==. E.val (P.read $ T.unpack v :: Integer)
+getTransFilter (rawTx)     ("mingasprice", v)  = rawTx E.^. RawTransactionGasPrice E.>=. E.val (P.read $ T.unpack v :: Integer)
+getTransFilter (rawTx)     ("maxgasprice", v)  = rawTx E.^. RawTransactionGasPrice E.<=. E.val (P.read $ T.unpack v :: Integer)
+
+getTransFilter (rawTx)     ("gaslimit", v)     = rawTx E.^. RawTransactionGasLimit E.==. E.val (P.read $ T.unpack v :: Integer)
+getTransFilter (rawTx)     ("mingaslimit", v)  = rawTx E.^. RawTransactionGasLimit E.>=. E.val (P.read $ T.unpack v :: Integer)
+getTransFilter (rawTx)     ("maxgaslimit", v)  = rawTx E.^. RawTransactionGasLimit E.<=. E.val (P.read $ T.unpack v :: Integer)
+
+getTransFilter (rawTx)     ("value", v)        = rawTx E.^. RawTransactionValue E.==. E.val (P.read $ T.unpack v :: Integer)
+getTransFilter (rawTx)     ("minvalue", v)     = rawTx E.^. RawTransactionValue E.>=. E.val (P.read $ T.unpack v :: Integer)
+getTransFilter (rawTx)     ("maxvalue", v)     = rawTx E.^. RawTransactionValue E.<=. E.val (P.read $ T.unpack v :: Integer)
+
+getTransFilter (rawTx)     ("blockid", v)      = rawTx E.^. RawTransactionBlockId E.==. E.val (toBlockId v)
+
+
+toBlockId v = toSqlKey (fromIntegral $ (P.read $ T.unpack v :: Integer) )
+
+toAddr v = Address wd160
+  where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]

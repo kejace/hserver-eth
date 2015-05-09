@@ -1,6 +1,5 @@
 /static StaticR Static appStatic
 
-
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
@@ -10,25 +9,32 @@
 /address-explorer.js AddressExplorerR GET
 /address-explorer.css AddressExplorerCSSR GET
 
--- /query/transaction TransactionInfoR GET
+/index.html DemoR GET
+/help/ HelpR GET
+
 /query/block BlockInfoR GET
 /query/account AccountInfoR GET
--- /query/transaction/hash/#Integer TxHashR GET
-/query/block/number/#Integer BlkNumberR GET
+/query/transaction TransactionInfoR GET
+
+/query/block/number/#Integer/ BlkNumberR GET
 /query/block/gas/#Integer BlkGasR GET
 /query/block/gasrange/lower/#Integer/upper/#Integer BlkGasRangeR GET
 /query/block/numberrange/lower/#Integer/upper/#Integer BlkNumberRangeR GET
 /query/block/timerange/lower/#UTCTime/upper/#UTCTime BlkTimeRangeR GET
 /query/block/blockid/#Integer BlkIdR GET
 /query/block/coinbase/#Text BlkCoinbaseR GET
--- /query/block/coinbasep/#Text BlkCoinbaseR' GET
 /query/block/coinbasenum/#Text BlkCoinbaseNumR GET
-/query/account/address/#Text AccAddressR GET
-/query/account/nonce/#Integer AccNonceR GET
-/query/account/balance/#Integer AccBalanceR GET
-/query/transaction/address/#Text TxAddressR GET
 /query/block/difficulty/#Integer BlkDifficultyR GET
 /query/block/hash/#Text BlkHashR GET
 /query/block/last/#Integer BlkLastR GET
 /query/block/txaddress/#Text BlkTxAddressR GET
-/index.html DemoR GET
+/query/block/txaddress/#Text/#Integer BlkTxAddressR' GET
+
+/query/account/address/#Text AccAddressR GET
+/query/account/address/#Text/#Integer AccAddressR' GET
+/query/account/nonce/#Integer AccNonceR GET
+/query/account/balance/#Integer AccBalanceR GET
+
+/query/transaction/address/#Text TxAddressR GET
+/query/transaction/address/#Text/#Integer TxAddressR' GET
+

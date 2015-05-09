@@ -45,6 +45,7 @@ library
                      Handler.BlkCoinbase,
                      Handler.BlkTxAddress
                      Handler.Filters
+                     Handler.Help
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

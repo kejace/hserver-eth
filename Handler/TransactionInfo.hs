@@ -59,8 +59,10 @@ import Handler.JsonJuggler
 import Handler.Filters
 
 
-getTransactionInfoR :: Handler Value
-getTransactionInfoR = do
+getTransactionInfoR = getTransactionInfoR' 0
+
+getTransactionInfoR' :: Integer -> Handler Value
+getTransactionInfoR' offset = do
                  getParameters <- reqGetParams <$> getRequest
                  liftIO $ traceIO $ show getParameters
                  addHeader "Access-Control-Allow-Origin" "*"
@@ -74,9 +76,12 @@ getTransactionInfoR = do
                         
                                         E.where_ ((P.foldl1 (E.&&.) $ P.map (getTransFilter (rawTx)) $ getParameters ))
 
+                                        E.offset $ (limit * off)
                                         E.limit $ (fetchLimit)
-
                                         --E.orderBy [E.desc (accStateRef E.^. AddressStateRefBalance)]
 
                                         return rawTx
-                 returnJson $ nub $ P.map id (P.map entityVal (addrs :: [Entity RawTransaction])) -- consider removing nub - it takes time n^{2}
+                 returnJson $ nub $ P.map rtToRtPrime (P.map id (P.map entityVal (addrs :: [Entity RawTransaction]))) -- consider removing nub - it takes time n^{2}
+                 where 
+                   limit = (fromIntegral $ fetchLimit :: Int64)
+                   off = (fromIntegral $ offset :: Int64)
