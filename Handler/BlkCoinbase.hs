@@ -22,9 +22,10 @@ import qualified Data.Text as T
 import Handler.JsonJuggler
 import Data.List       
 
+getBlkCoinbaseR address = (getBlkCoinbaseR' address 0)
 
-getBlkCoinbaseR :: Text -> Handler Value
-getBlkCoinbaseR address = do
+getBlkCoinbaseR' :: Text -> Integer -> Handler Value
+getBlkCoinbaseR' address offset = do
                    addHeader "Access-Control-Allow-Origin" "*"
                    blks <- runDB $ E.select $
                                         E.from $ \(blk `E.InnerJoin` bdRef) -> do
@@ -32,7 +33,8 @@ getBlkCoinbaseR address = do
                                         E.on ( bdRef E.^. BlockDataRefBlockId E.==. blk E.^. BlockId )                                        
                                         E.where_ (( bdRef E.^. BlockDataRefCoinbase E.==. E.val (Address wd160)) )
 
-                                        E.limit $ (fetchLimit)
+                                        E.limit $ (limit)
+                                        E.offset $ (limit * off)
 
                                         E.orderBy [E.desc (bdRef E.^. BlockDataRefNumber)]
 
@@ -41,6 +43,8 @@ getBlkCoinbaseR address = do
 
         where
           ((wd160, _):_) = readHex $ T.unpack $ address ::  [(Word160,String)]
+          limit = (fromIntegral $ fetchLimit :: Int64)
+          off = (fromIntegral $ offset :: Int64)
 
 getBlkCoinbaseNumR :: Text -> Handler Value
 getBlkCoinbaseNumR address = do

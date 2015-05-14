@@ -57,29 +57,13 @@ import Handler.JsonJuggler
 
 import Handler.Filters
 
--- do addHeader "Access-Control-Allow-Origin" "*"
---   defaultLayout [whamlet| <h1> Accounts
-                                
-
---                              <h2> Accounts are easily queried.
-
---                              <p>
-
---                              <ul>
---                                    <li> What's going on at address <a href="/query/account/address/4c712ac73a53046ce491d95f0aebf8ef8cb057">4c712ac73a53046ce491d95f0aebf8ef8cb057</a>? 
-
---                                    <li> Which accounts have nonce equal to <a href="/query/account/nonce/3">three</a>?
-
---                                    <li> Does anyone have balance  <a href="/query/account/balance/33000000000000000000">33000000000000000000</a>?
---                           |]
-
-
 getAccountInfoR :: Handler Value
 getAccountInfoR = do
                  getParameters <- reqGetParams <$> getRequest
                  liftIO $ traceIO $ show getParameters
+                 let offset = (fromIntegral $ (maybe 0 id $ extractPage getParameters)  :: Int64)
                  addHeader "Access-Control-Allow-Origin" "*"
-                 addrs <- runDB $ E.select $
+                 addrs <- runDB $ E.selectDistinct $
                                         -- E.from $ \(blk `E.InnerJoin` bdRef `E.FullOuterJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
                         
                                         -- E.on ( accStateRef E.^. AddressStateRefAddress E.==. rawTX E.^. RawTransactionFromAddress )
@@ -89,9 +73,13 @@ getAccountInfoR = do
                         
                                         E.where_ ((P.foldl1 (E.&&.) $ P.map (getAccFilter (accStateRef)) $ getParameters ))
 
-                                        E.limit $ (fetchLimit)
+                                        E.offset $ (limit * offset)
+                                        E.limit $ limit
 
-                                        --E.orderBy [E.desc (accStateRef E.^. AddressStateRefBalance)]
+                                        E.orderBy [E.desc (accStateRef E.^. AddressStateRefBalance)]
 
                                         return accStateRef
-                 returnJson $ nub $ P.map id (P.map entityVal (addrs :: [Entity AddressStateRef])) -- consider removing nub - it takes time n^{2}
+                 returnJson $ nub $ P.map asrToAsrPrime (P.map entityVal (addrs :: [Entity AddressStateRef])) -- consider removing nub - it takes time n^{2}
+                 where 
+                   limit = (fromIntegral $ fetchLimit :: Int64)
+                  

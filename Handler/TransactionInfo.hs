@@ -58,13 +58,11 @@ import Handler.JsonJuggler
 
 import Handler.Filters
 
-
-getTransactionInfoR = getTransactionInfoR' 0
-
-getTransactionInfoR' :: Integer -> Handler Value
-getTransactionInfoR' offset = do
+getTransactionInfoR :: Handler Value
+getTransactionInfoR = do
                  getParameters <- reqGetParams <$> getRequest
                  liftIO $ traceIO $ show getParameters
+                 let offset = (fromIntegral $ (maybe 0 id $ extractPage getParameters)  :: Int64)
                  addHeader "Access-Control-Allow-Origin" "*"
                  addrs <- runDB $ E.select $
                                         -- E.from $ \(blk `E.InnerJoin` bdRef `E.FullOuterJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
@@ -76,12 +74,11 @@ getTransactionInfoR' offset = do
                         
                                         E.where_ ((P.foldl1 (E.&&.) $ P.map (getTransFilter (rawTx)) $ getParameters ))
 
-                                        E.offset $ (limit * off)
-                                        E.limit $ (fetchLimit)
-                                        --E.orderBy [E.desc (accStateRef E.^. AddressStateRefBalance)]
+                                        E.offset $ (limit * offset)
+                                        E.limit $ (limit)
+                                        E.orderBy [E.desc (rawTx E.^. RawTransactionNonce)]
 
                                         return rawTx
                  returnJson $ nub $ P.map rtToRtPrime (P.map id (P.map entityVal (addrs :: [Entity RawTransaction]))) -- consider removing nub - it takes time n^{2}
                  where 
-                   limit = (fromIntegral $ fetchLimit :: Int64)
-                   off = (fromIntegral $ offset :: Int64)
+                    limit = (fromIntegral $ fetchLimit :: Int64)

@@ -56,15 +56,18 @@ import Yesod.Core.Handler
 import Debug.Trace
 import Handler.JsonJuggler
 
+import Control.Monad
+
 import Handler.Filters
 
 blockIdRef :: (E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity Block))-> expr (E.Value Bool)
 blockIdRef (a, t) = (a E.^. BlockDataRefBlockId E.==. t E.^. BlockId)
-
+                    
 getBlockInfoR :: Handler Value
 getBlockInfoR = do
   	           getParameters <- reqGetParams <$> getRequest
                    liftIO $ traceIO $ show getParameters
+                   let offset = (fromIntegral $ (maybe 0 id $ extractPage getParameters)  :: Int64)
                    addHeader "Access-Control-Allow-Origin" "*"
                    blks <- runDB $ E.select $
                                         E.from $ \(blk `E.InnerJoin` bdRef `E.FullOuterJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
@@ -75,22 +78,12 @@ getBlockInfoR = do
 
                                         E.where_ ((P.foldl1 (E.&&.) $ P.map (getBlkFilter (bdRef, accStateRef, rawTX, blk)) $ getParameters ))
 
+                                        E.offset $ (limit * offset)
                                         E.limit $ (fetchLimit)
 
                                         E.orderBy [E.desc (bdRef E.^. BlockDataRefNumber)]
 
                                         return blk
                    returnJson $ nub $ P.map bToBPrime (P.map entityVal (blks :: [Entity Block])) -- consider removing nub - it takes time n^{2}
-
-
-    {-
-
-do
-  addHeader "Access-Control-Allow-Origin" "*"
-  blks <- runDB $ E.selectDistinct $
-                                        E.from $ \x@(_, t) -> do
-                                        E.where_ (
-                                          P.foldl1 (E.&&.)     [getFilter x "number", getFilter x "blockId"])
-                                        return t
-  returnJson $ nub $ (P.map entityVal blks) -- consider removing nub - it takes time n^{2}
--}
+               where
+                   limit = (fromIntegral $ fetchLimit :: Int64)

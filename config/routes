@@ -13,16 +13,16 @@
 /help/ HelpR GET
 
 /query/block BlockInfoR GET
-/query/account AccountInfoR GET
-/query/transaction TransactionInfoR GET
-
 /query/block/number/#Integer/ BlkNumberR GET
 /query/block/gas/#Integer BlkGasR GET
 /query/block/gasrange/lower/#Integer/upper/#Integer BlkGasRangeR GET
+/query/block/gasrange/lower/#Integer/upper/#Integer/#Integer BlkGasRangeR' GET
 /query/block/numberrange/lower/#Integer/upper/#Integer BlkNumberRangeR GET
-/query/block/timerange/lower/#UTCTime/upper/#UTCTime BlkTimeRangeR GET
+/query/block/numberrange/lower/#Integer/upper/#Integer/#Integer BlkNumberRangeR' GET
+-- /query/block/timerange/lower/#UTCTime/upper/#UTCTime BlkTimeRangeR GET
 /query/block/blockid/#Integer BlkIdR GET
 /query/block/coinbase/#Text BlkCoinbaseR GET
+/query/block/coinbase/#Text/#Integer BlkCoinbaseR' GET
 /query/block/coinbasenum/#Text BlkCoinbaseNumR GET
 /query/block/difficulty/#Integer BlkDifficultyR GET
 /query/block/hash/#Text BlkHashR GET
@@ -30,11 +30,14 @@
 /query/block/txaddress/#Text BlkTxAddressR GET
 /query/block/txaddress/#Text/#Integer BlkTxAddressR' GET
 
+/query/account AccountInfoR GET
+
 /query/account/address/#Text AccAddressR GET
 /query/account/address/#Text/#Integer AccAddressR' GET
 /query/account/nonce/#Integer AccNonceR GET
 /query/account/balance/#Integer AccBalanceR GET
 
+/query/transaction TransactionInfoR GET
 /query/transaction/address/#Text TxAddressR GET
 /query/transaction/address/#Text/#Integer TxAddressR' GET
 

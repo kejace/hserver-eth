@@ -52,8 +52,8 @@ rtToRtPrime x = RawTransaction' x
 data Transaction' = Transaction' Transaction deriving (Eq, Show)
 
 instance ToJSON Transaction' where
-    toJSON (Transaction' tx@(MessageTX tnon tgp tgl tto tval td tr ts tv)) = 
-        object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "to" .= tto, "value" .= tval,
+    toJSON (Transaction' tx@(MessageTX tnon tgp tgl tto@(Address a) tval td tr ts tv)) = 
+        object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "to" .= (showHex a ""), "value" .= tval,
         "data" .= td, "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show $ transactionSemantics $ tx)]
     toJSON (Transaction' tx@(ContractCreationTX tnon tgp tgl tval ti tr ts tv)) = 
         object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "value" .= tval, "init" .= ti,
@@ -138,7 +138,7 @@ isAddr a = case a of
 
 rawTransactionSemantics :: RawTransaction -> TransactionType
 rawTransactionSemantics t@(RawTransaction fa non gp gl ta val cod v r s bid) = work
-     where work | (not (isAddr ta)) && ((Data.ByteString.length cod) > 0)   = Contract
+     where work | (not (isAddr ta)) && ((Data.ByteString.length cod) >= 0)   = Contract
                 | (isAddr ta) &&  ((Data.ByteString.length cod) > 0)        = FunctionCall
-                | (not (isAddr ta)) && ((Data.ByteString.length cod) == 0) = JustTheSig                                                              
+              --  | (not (isAddr ta)) && ((Data.ByteString.length cod) == 0)  = JustTheSig                                                              
                 | otherwise = Transfer
