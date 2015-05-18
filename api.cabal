@@ -43,7 +43,8 @@ library
                      Handler.Demo
                      Handler.JsonJuggler
                      Handler.BlkCoinbase,
-                     Handler.BlkTxAddress
+                     Handler.BlkTxAddress,
+                     Handler.IncludeTransaction
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

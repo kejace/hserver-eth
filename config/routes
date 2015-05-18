@@ -30,4 +30,4 @@
 /query/block/last/#Integer BlkLastR GET
 /query/block/txaddress/#Text BlkTxAddressR GET
 /index.html DemoR GET
-
+/includetransaction IncludeTransactionR POST

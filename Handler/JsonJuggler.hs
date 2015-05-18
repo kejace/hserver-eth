@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Handler.JsonJuggler where
 
@@ -13,10 +14,12 @@ import Blockchain.Data.Code
 
 import Data.Aeson
 import Data.ByteString.Lazy as BS
+import Data.ByteString.Base16 as B16
 import Database.Persist
 import Database.Persist.TH
 import Database.Persist.Postgresql
 import Data.ByteString
+import qualified Data.Text.Encoding as T
 
 import qualified Data.ByteString as B
 import qualified Database.Esqueleto as E
@@ -38,14 +41,47 @@ data RawTransaction' = RawTransaction' RawTransaction deriving (Eq, Show)
 instance ToJSON RawTransaction' where
     toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl (Just (Address ta)) val cod v r s bid)) =
         object ["from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
-        "to" .= showHex ta "" , "value" .= show val, "codeOrData" .= cod, "v" .= v, "r" .= r, "s" .= s,
+        "to" .= showHex ta "" , "value" .= show val, "codeOrData" .= cod, 
+        "v" .= showHex v "",
+        "r" .= showHex r "",
+        "s" .= showHex s "",
         "blockId" .= bid, "transactionType" .= (show $ rawTransactionSemantics rt)]
     toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl Nothing val cod v r s bid)) =
         object ["from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
-        "value" .= show val, "codeOrData" .= cod, "v" .= v, "r" .= r, "s" .= s,
+        "value" .= show val, "codeOrData" .= cod,
+        "v" .= showHex v "",
+        "r" .= showHex r "",
+        "s" .= showHex s "",
         "blockId" .= bid, "transactionType" .= (show $ rawTransactionSemantics rt)]
 
+instance FromJSON RawTransaction' where
+    parseJSON (Object t) = do
+      fa <- fmap (fst P.. P.head P.. readHex) (t .: "from")       --- ugly ! stupid Prelude qualified import 
+      (tnon :: Int)  <- (t .: "nonce")
+      (tgp :: Int) <- (t .: "gasPrice")
+      (tgl :: Int) <- (t .: "gasLimit")
+      tto <- fmap (Just P.. Address P.. fst P.. P.head P.. readHex) (t .: "to")
+      tval <- fmap read (t .: "value")
+      tcd <- fmap (fst P..  B16.decode P.. T.encodeUtf8 ) (t .: "codeOrData")
+      (tv :: Integer) <- fmap (fst P.. P.head P.. readHex) (t .: "v")
+      (tr :: Integer) <- fmap (fst P.. P.head P.. readHex) (t .: "r")
+      (ts :: Word8) <- fmap (fst P.. P.head P.. readHex) (t .: "s")
+      bid <- (t .: "blockId")
+      
+      return (RawTransaction' (RawTransaction (Address fa)
+                                              (fromIntegral tnon :: Integer)
+                                              (fromIntegral $ tgp :: Integer)
+                                              (fromIntegral $ tgl :: Integer)
+                                              (tto :: Maybe Address)
+                                              (tval :: Integer)
+                                              (tcd :: B.ByteString)
+                                              (tv :: Integer)
+                                              (tr :: Integer)
+                                              (ts :: Word8)
+                                              (toSqlKey bid) ))
 
+
+      
 
 rtToRtPrime :: RawTransaction -> RawTransaction'
 rtToRtPrime x = RawTransaction' x
@@ -59,6 +95,49 @@ instance ToJSON Transaction' where
     toJSON (Transaction' tx@(ContractCreationTX tnon tgp tgl tval ti tr ts tv)) = 
         object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "value" .= tval, "init" .= ti,
         "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show $ transactionSemantics $ tx)]
+
+instance FromJSON Transaction' where
+    parseJSON (Object t) = do
+      tto <- (t .:? "to")
+      tnon <- (t .: "nonce")
+      tgp <- (t .: "gasPrice")
+      tgl <- (t .: "gasLimit")
+      tval <- (t .: "value")
+      tr <- (t .: "r")
+      ts <- (t .: "s")
+      tv <- (t .: "v")
+
+      case tto of
+        Nothing -> do
+          ti <- (t .: "init")
+          return (Transaction' (ContractCreationTX tnon tgp tgl tval ti tr ts tv))
+        (Just to) -> do
+          td <- (t .: "data")
+          return (Transaction' (MessageTX tnon tgp tgl to tval td tr ts tv))
+        
+{-        case res of
+          Nothing -> Transaction' ( ContractCreationTX <$>
+                     (t .: "nonce") <*>
+                     (t .: "gasPrice") <*>
+                     (t .: "gasLimit") <*>
+                     (t .: "value") <*>
+                     (t .: "init") <*>
+                     (t .: "r") <*>
+                     (t .: "s") <*>
+                     (t .: "v") 
+                    )
+          _ ->      Transaction' ( MessageTX <$>
+                     (t .: "nonce") <*>
+                     (t .: "gasPrice") <*>
+                     (t .: "gasLimit") <*>
+                     (t .: "to" ) <*>   
+                     (t .: "value") <*>
+                     (t .: "data") <*>
+                     (t .: "r") <*>
+                     (t .: "s") <*>
+                     (t .: "v") 
+                    )
+-}
 
 tToTPrime :: Transaction -> Transaction'
 tToTPrime x = Transaction' x
