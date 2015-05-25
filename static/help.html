@@ -11,7 +11,7 @@
 <body>
 <h2 id="endpoints">Endpoints</h2>
 <p>There are three REST endpoints, corrensponding to the query of a block, address and a transaction, respectively.</p>
-<p>All of these queries can be appended with <code>page=n</code> for pageing. Indexing starts at 0 so <code>/query?block=xxxx</code> is equivalent to <code>/query?block=xxxx&amp;page=0</code>.</p>
+<p>All of these queries can be appended with <code>page=n</code> for pageing. Pageing starts at 0 so <code>/query?block=xxxx</code> is equivalent to <code>/query?block=xxxx&amp;page=0</code>. For blocks we support indexing. If you want to query a large range, supply <code>index=n</code> where <code>n-1</code> is the last block that you queried. This will supersede paging eventually for all queries.</p>
 <h3 id="queryblock"><code>/query/block?</code></h3>
 <ul>
 <li><code>number</code>, <code>maxnumber</code>, <code>minnumber</code></li>

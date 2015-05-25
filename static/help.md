@@ -2,7 +2,7 @@
 
 There are three REST endpoints, corrensponding to the query of a block, address and a transaction, respectively.
 
-All of these queries can be appended with `page=n` for pageing. Indexing starts at 0 so `/query?block=xxxx` is equivalent to `/query?block=xxxx&page=0`.
+All of these queries can be appended with `page=n` for pageing. Pageing starts at 0 so `/query?block=xxxx` is equivalent to `/query?block=xxxx&page=0`. For blocks we support indexing. If you want to query a large range, supply `index=n` where `n-1` is the last block that you queried. This will supersede paging eventually for all queries.
 
 ###  ```/query/block?```
 
