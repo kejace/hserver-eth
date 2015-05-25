@@ -1,1 +1,11 @@
-document.getElementById(#{toJSON aDomId}).innerHTML = "This text was added by the Javascript part of the homepage widget.";
+$(document).on("ready", function() {
+  
+  $.getJSON("http://testapi.blockapps.net/query/block/last/1", function(blockrefs, textStatus, jqXHR) {
+    
+    $("#blockNumber").html("Last block: " + blockrefs[0].blockData.number);
+    $("#blockTime").html(" mined on " + blockrefs[0].blockData.timestamp);
+
+    console.log("Latest block: " + blockrefs[0].blockData.number);
+    console.log("Latest blocktime: " + blockrefs[0].blockData.timestamp);
+  });
+});

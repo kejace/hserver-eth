@@ -34,6 +34,10 @@ import Import
 
 getBlkFilter :: (E.Esqueleto query expr backend) => (expr (Entity BlockDataRef), expr (Entity AddressStateRef), expr (Entity RawTransaction), expr (Entity Block))-> (Text, Text) -> expr (E.Value Bool)
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("page", v)    = E.val True 
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("index", v)    = E.val True 
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("raw", v)    = E.val True 
+
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("ntx", v)    = bdRef E.^. BlockDataRefNumber E.==. E.val (P.read $ T.unpack v :: Integer)
 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("number", v)    = bdRef E.^. BlockDataRefNumber E.==. E.val (P.read $ T.unpack v :: Integer)
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("minnumber", v)    = bdRef E.^. BlockDataRefNumber E.>=. E.val (P.read $ T.unpack v :: Integer)
@@ -68,6 +72,8 @@ getBlkFilter (bdRef, accStateRef, rawTX, blk) ("hash", v)   = (bdRef E.^. BlockD
 
 getAccFilter :: (E.Esqueleto query expr backend) => (expr (Entity AddressStateRef))-> (Text, Text) -> expr (E.Value Bool)
 getAccFilter (accStateRef) ("page", v)         =  E.val True
+getAccFilter (accStateRef) ("index", v)         =  E.val True
+getAccFilter (accStateRef) ("RawTransactionCodeOrData", v)         =  E.val True
 
 getAccFilter (accStateRef) ("balance", v)      = accStateRef E.^. AddressStateRefBalance E.==. E.val (P.read $ T.unpack v :: Integer) 
 getAccFilter (accStateRef) ("minbalance", v)   = accStateRef E.^. AddressStateRefBalance E.>=. E.val (P.read $ T.unpack v :: Integer) 
@@ -81,6 +87,8 @@ getAccFilter (accStateRef) ("address", v)      = accStateRef E.^. AddressStateRe
 
 getTransFilter :: (E.Esqueleto query expr backend) => (expr (Entity RawTransaction))-> (Text, Text) -> expr (E.Value Bool)
 getTransFilter (rawTx)     ("page", v)         = E.val True
+getTransFilter (rawTx)     ("index", v)         = E.val True
+getTransFilter (rawTx)     ("raw", v)         = E.val True
 
 getTransFilter (rawTx)     ("address", v)      = rawTx E.^. RawTransactionFromAddress E.==. E.val (toAddr v) E.||. rawTx E.^. RawTransactionToAddress E.==. E.val (Just (toAddr v))
 getTransFilter (rawTx)     ("from", v)         = rawTx E.^. RawTransactionFromAddress E.==. E.val (toAddr v)
@@ -108,12 +116,14 @@ toBlockId v = toSqlKey (fromIntegral $ (P.read $ T.unpack v :: Integer) )
 toAddr v = Address wd160
   where ((wd160, _):_) = readHex $ T.unpack $ v ::  [(Word160,String)]
 
-extractPage :: [(Text, Text)]-> Maybe Integer 
-extractPage ts = Control.Monad.foldM toFold 0 (P.map selectPage ts)
+
+extractPage :: String -> [(Text, Text)] ->  Maybe Integer 
+extractPage name ts = Control.Monad.foldM toFold 0 (P.map selectPage ts)
      where 
        toFold :: Integer -> Maybe Integer -> Maybe Integer
        toFold n Nothing = Just n
        toFold n (Just m) = Just (P.maximum [n, m])
        selectPage :: (Text, Text) -> Maybe Integer
-       selectPage ("page", v) = Just (P.read $ T.unpack v :: Integer)
-       selectPage (_, v)      = Nothing
+       selectPage (s, v) | T.unpack s == name = Just (P.read $ T.unpack v :: Integer)
+                         | otherwise = Nothing
+       selectPage (_, v) = Nothing

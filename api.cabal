@@ -112,6 +112,8 @@ library
                  , old-locale
                  , ethereum-util
                  , transformers
+                 , postgresql-simple
+                 , postgresql-libpq
 
 executable         api
     if flag(library-only)
@@ -158,3 +160,14 @@ test-suite test
                  , hspec >= 2.0.0
                  , classy-prelude
                  , classy-prelude-yesod
+           --      , hspec2
+                 , hspec-wai
+                 , hspec-wai-json
+                 , warp
+                 , wai
+                 , wai-extra
+                 , HUnit
+                 , bytestring
+                 , text
+                 , ethereum-data-sql
+                 , aeson

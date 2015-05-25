@@ -13,9 +13,21 @@ module Application
     ) where
 
 import Blockchain.Data.DataDefs
-import Control.Monad.Logger                 (liftLoc, runLoggingT)
+import Control.Monad.Logger                 (liftLoc, runLoggingT, runStderrLoggingT, 
+                                              runStdoutLoggingT, runNoLoggingT)
 import Database.Persist.Postgresql          (createPostgresqlPool, pgConnStr,
                                              pgPoolSize, runSqlPool)
+import Database.Persist.Postgresql
+
+import qualified Database.PostgreSQL.Simple as PG
+
+import Database.Esqueleto.Internal.Sql
+import Database.Persist.Sql.Util
+
+import qualified Database.PostgreSQL.LibPQ as PQ
+
+import           Database.PostgreSQL.Simple.Internal
+
 import Import hiding (migrateAll)
 import Language.Haskell.TH.Syntax           (qLocation)
 import Network.Wai.Handler.Warp             (Settings, defaultSettings,
@@ -56,6 +68,10 @@ import Handler.BlkCoinbase
 import Handler.BlkTxAddress
 import Handler.Help
 
+import Debug.Trace
+
+debug = flip trace
+
 -- This line actually creates our YesodDispatch instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
 -- comments there for more details.
@@ -85,15 +101,31 @@ makeFoundation appSettings = do
         logFunc = messageLoggerSource tempFoundation appLogger
 
     -- Create the database connection pool
-    pool <- flip runLoggingT logFunc $ createPostgresqlPool
+    pool <-  myLogger $ myPool
         (pgConnStr  $ appDatabaseConf appSettings)
         (pgPoolSize $ appDatabaseConf appSettings)
 
     -- Perform database migration using our application's logging settings.
-    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
+    --runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
+    myLogger (runSqlPool (runMigration migrateAll) pool)
 
     -- Return the foundation
     return $ mkFoundation pool
+
+
+myLogger = runNoLoggingT --runStdoutLoggingT
+
+noPool :: PG.Connection -> IO ()
+noPool = const $ return ()
+
+prePool :: PG.Connection -> IO ()
+prePool conn = withConnection conn $ const $ do 
+                            --id <- PQ.backendPID
+                            liftIO $ traceIO $ "hello"
+                            return ()
+
+myPool = createPostgresqlPoolModified $ noPool
+
 
 -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
 -- applyng some additional middlewares.

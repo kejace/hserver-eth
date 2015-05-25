@@ -1,3 +1,5 @@
+<script src=https://code.jquery.com/jquery-2.1.4.min.js>
+
 <h1>BlockApps.net - the most convenient and reliable API for writing Blockchain Based applications.
 
 <p>
@@ -12,7 +14,7 @@
  <break>
   Also, check out a <a href="/index.html">demo</a> of how to parse and visualize the records you've requested.
   <break>
-  Consult the <a href="/help/">help</a> for detailed protocol info.
+  Consult the <a href="help.html">help</a> for detailed protocol info.
 <h2>Coming Soon:
 
 <p>
@@ -20,4 +22,7 @@
   <li> Push Notifications - be notified of new blocks, transaction confirmations, as they happen.
   <li> Transaction Signing - sign transactions in the browser, and push them to the network - without running a client locally.
   <li> Network Statistics - view the health of the network, in real time.
-  
+
+<p> 
+ <div id="blockNumber" class="value"> 
+ <div id="blockTime" class="value">

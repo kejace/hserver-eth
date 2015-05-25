@@ -60,15 +60,17 @@ import Handler.Filters
 getAccountInfoR :: Handler Value
 getAccountInfoR = do
                  getParameters <- reqGetParams <$> getRequest
-                 liftIO $ traceIO $ show getParameters
-                 let offset = (fromIntegral $ (maybe 0 id $ extractPage getParameters)  :: Int64)
+
+                 let offset = (fromIntegral $ (maybe 0 id $ extractPage "page" getParameters)  :: Int64)
+                 let index = (fromIntegral $ (maybe 0 id $ extractPage "index" getParameters)  :: Integer)
+
+                 liftIO $ traceIO $ "parameters: " P.++ show getParameters
+                 liftIO $ traceIO $ "index: " P.++ show index
+                 liftIO $ traceIO $ "offset: " P.++ show offset
+
                  addHeader "Access-Control-Allow-Origin" "*"
+
                  addrs <- runDB $ E.selectDistinct $
-                                        -- E.from $ \(blk `E.InnerJoin` bdRef `E.FullOuterJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
-                        
-                                        -- E.on ( accStateRef E.^. AddressStateRefAddress E.==. rawTX E.^. RawTransactionFromAddress )
-                                        -- E.on ( rawTX E.^. RawTransactionBlockId E.==. bdRef E.^. BlockDataRefBlockId )
-                                        -- E.on ( bdRef E.^. BlockDataRefBlockId E.==. blk E.^. BlockId )    
                                         E.from $ \(accStateRef) -> do
                         
                                         E.where_ ((P.foldl1 (E.&&.) $ P.map (getAccFilter (accStateRef)) $ getParameters ))
@@ -79,6 +81,7 @@ getAccountInfoR = do
                                         E.orderBy [E.desc (accStateRef E.^. AddressStateRefBalance)]
 
                                         return accStateRef
+                 liftIO $ traceIO $ "number of results: " P.++ (show $ P.length addrs)
                  returnJson $ nub $ P.map asrToAsrPrime (P.map entityVal (addrs :: [Entity AddressStateRef])) -- consider removing nub - it takes time n^{2}
                  where 
                    limit = (fromIntegral $ fetchLimit :: Int64)

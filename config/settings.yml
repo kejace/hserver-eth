@@ -26,4 +26,5 @@ database:
   poolsize: "_env:PGPOOLSIZE:10"
 
 copyright: BlockApps 2015
-analytics: UA-62294342-1
+--analytics: UA-62294342-1
+analytics: UA-63193038-1

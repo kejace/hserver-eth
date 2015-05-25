@@ -10,7 +10,7 @@
 /address-explorer.css AddressExplorerCSSR GET
 
 /index.html DemoR GET
-/help/ HelpR GET
+/help.html HelpR GET
 
 /query/block BlockInfoR GET
 /query/block/number/#Integer/ BlkNumberR GET

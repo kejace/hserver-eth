@@ -61,24 +61,37 @@ import Handler.Filters
 getTransactionInfoR :: Handler Value
 getTransactionInfoR = do
                  getParameters <- reqGetParams <$> getRequest
-                 liftIO $ traceIO $ show getParameters
-                 let offset = (fromIntegral $ (maybe 0 id $ extractPage getParameters)  :: Int64)
+
+                 let offset = (fromIntegral $ (maybe 0 id $ extractPage "page" getParameters)  :: Int64)
+                 let index = (fromIntegral $ (maybe 0 id $ extractPage "index" getParameters)  :: Integer)
+                   
+                 liftIO $ traceIO $ "parameters: " P.++ show getParameters
+                 liftIO $ traceIO $ "index: " P.++ show index
+                 liftIO $ traceIO $ "offset: " P.++ show offset
+
                  addHeader "Access-Control-Allow-Origin" "*"
-                 addrs <- runDB $ E.select $
-                                        -- E.from $ \(blk `E.InnerJoin` bdRef `E.FullOuterJoin` rawTX `E.LeftOuterJoin` accStateRef) -> do
-                        
-                                        -- E.on ( accStateRef E.^. AddressStateRefAddress E.==. rawTX E.^. RawTransactionFromAddress )
-                                        -- E.on ( rawTX E.^. RawTransactionBlockId E.==. bdRef E.^. BlockDataRefBlockId )
-                                        -- E.on ( bdRef E.^. BlockDataRefBlockId E.==. blk E.^. BlockId )    
+                 txs <- runDB $ E.select $
                                         E.from $ \(rawTx) -> do
                         
                                         E.where_ ((P.foldl1 (E.&&.) $ P.map (getTransFilter (rawTx)) $ getParameters ))
+
+                                        -- let criteria = P.map (getBlkFilter (bdRef, accStateRef, rawTX, blk)) $ getParameters 
+                                        -- let allCriteria = ((bdRef E.^. BlockDataRefNumber) E.>=. E.val index) : criteria
+
+                                        -- E.where_ (P.foldl1 (E.&&.) allCriteria)
+
+                                        -- E.offset $ (limit * offset)
+                                        -- E.limit $ limit
+
+                                        -- E.orderBy [E.asc (bdRef E.^. BlockDataRefNumber)]
+
 
                                         E.offset $ (limit * offset)
                                         E.limit $ (limit)
                                         E.orderBy [E.desc (rawTx E.^. RawTransactionNonce)]
 
                                         return rawTx
-                 returnJson $ nub $ P.map rtToRtPrime (P.map id (P.map entityVal (addrs :: [Entity RawTransaction]))) -- consider removing nub - it takes time n^{2}
+                 liftIO $ traceIO $ "number of results: " P.++ (show $ P.length txs)
+                 returnJson $ nub $ P.map rtToRtPrime (P.map id (P.map entityVal (txs :: [Entity RawTransaction]))) -- consider removing nub - it takes time n^{2}
                  where 
                     limit = (fromIntegral $ fetchLimit :: Int64)
