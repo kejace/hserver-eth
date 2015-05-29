@@ -62,18 +62,23 @@ instance ToJSON Transaction' where
 tToTPrime :: Transaction -> Transaction'
 tToTPrime x = Transaction' x
 
-data Block' = Block' Block deriving (Eq, Show)
+data Block' = Block' Block String deriving (Eq, Show)
 
 instance ToJSON Block' where
-      toJSON (Block' (Block bd rt bu)) = --"hello"
-        object ["kind" .= ("Block" :: String), "blockData" .= bdToBdPrime bd,
+      toJSON (Block' (Block bd rt bu) next) =
+        object ["next" .= next, "kind" .= ("Block" :: String), "blockData" .= bdToBdPrime bd,
          "receiptTransactions" .= P.map tToTPrime rt,
          "blockUncles" .= P.map bdToBdPrime bu]
+       --where next = ("/query/block?" :: String)
 
       toJSON _ = object ["malformed Block" .= True]
 
-bToBPrime :: Block -> Block'
-bToBPrime x = Block' x
+bToBPrime :: (String , Block) -> Block'
+bToBPrime (s, x) = Block' x s
+
+
+bToBPrime' :: Block -> Block'
+bToBPrime' x = Block' x ""
 
 data BlockData' = BlockData' BlockData deriving (Eq, Show)
 
@@ -92,10 +97,11 @@ data BlockDataRef' = BlockDataRef' BlockDataRef deriving (Eq, Show)
 
 instance ToJSON BlockDataRef' where
       toJSON (BlockDataRef' (BlockDataRef ph uh cb@(Address a) sr tr rr lb d num gl gu ts ed non mh bi h)) = 
-        object ["kind" .= ("BlockDataRef" :: String), "parentHash" .= ph, "unclesHash" .= uh, "coinbase" .= (showHex a ""), "stateRoot" .= sr,
+        object ["next" .= next, "kind" .= ("BlockDataRef" :: String), "parentHash" .= ph, "unclesHash" .= uh, "coinbase" .= (showHex a ""), "stateRoot" .= sr,
         "transactionsRoot" .= tr, "receiptsRoot" .= rr, "difficulty" .= d, "number" .= num,
         "gasLimit" .= gl, "gasUsed" .= gu, "timestamp" .= ts, "extraData" .= ed, "nonce" .= non,
         "mixHash" .= mh, "blockId" .= bi, "hash" .= h]
+       where next = "/query/block?" :: String
       toJSON _ = object ["malformed BlockDataRef" .= True]
 
 

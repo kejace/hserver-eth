@@ -22,7 +22,3 @@
   <li> Push Notifications - be notified of new blocks, transaction confirmations, as they happen.
   <li> Transaction Signing - sign transactions in the browser, and push them to the network - without running a client locally.
   <li> Network Statistics - view the health of the network, in real time.
-
-<p> 
- <div id="blockNumber" class="value"> 
- <div id="blockTime" class="value">

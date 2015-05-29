@@ -67,6 +67,7 @@ import Handler.Demo
 import Handler.BlkCoinbase
 import Handler.BlkTxAddress
 import Handler.Help
+import Handler.TxLast
 
 import Debug.Trace
 

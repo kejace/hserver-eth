@@ -36,6 +36,8 @@ getBlkFilter :: (E.Esqueleto query expr backend) => (expr (Entity BlockDataRef),
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("page", v)    = E.val True 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("index", v)    = E.val True 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("raw", v)    = E.val True 
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("next", v)    = E.val True
+getBlkFilter (bdRef, accStateRef, rawTX, blk) ("prev", v)    = E.val True
 
 getBlkFilter (bdRef, accStateRef, rawTX, blk) ("ntx", v)    = bdRef E.^. BlockDataRefNumber E.==. E.val (P.read $ T.unpack v :: Integer)
 
@@ -72,8 +74,11 @@ getBlkFilter (bdRef, accStateRef, rawTX, blk) ("hash", v)   = (bdRef E.^. BlockD
 
 getAccFilter :: (E.Esqueleto query expr backend) => (expr (Entity AddressStateRef))-> (Text, Text) -> expr (E.Value Bool)
 getAccFilter (accStateRef) ("page", v)         =  E.val True
-getAccFilter (accStateRef) ("index", v)         =  E.val True
-getAccFilter (accStateRef) ("RawTransactionCodeOrData", v)         =  E.val True
+getAccFilter (accStateRef) ("index", v)        =  E.val True
+getAccFilter (accStateRef) ("raw", v)          =  E.val True
+getAccFilter (accStateRef) ("next", v)         =  E.val True
+getAccFilter (accStateRef) ("prev", v)         =  E.val True
+--getAccFilter (accStateRef) ("RawTransactionCodeOrData", v)    =  E.val True
 
 getAccFilter (accStateRef) ("balance", v)      = accStateRef E.^. AddressStateRefBalance E.==. E.val (P.read $ T.unpack v :: Integer) 
 getAccFilter (accStateRef) ("minbalance", v)   = accStateRef E.^. AddressStateRefBalance E.>=. E.val (P.read $ T.unpack v :: Integer) 
@@ -87,8 +92,10 @@ getAccFilter (accStateRef) ("address", v)      = accStateRef E.^. AddressStateRe
 
 getTransFilter :: (E.Esqueleto query expr backend) => (expr (Entity RawTransaction))-> (Text, Text) -> expr (E.Value Bool)
 getTransFilter (rawTx)     ("page", v)         = E.val True
-getTransFilter (rawTx)     ("index", v)         = E.val True
-getTransFilter (rawTx)     ("raw", v)         = E.val True
+getTransFilter (rawTx)     ("index", v)        = E.val True
+getTransFilter (rawTx)     ("raw", v)          = E.val True
+getTransFilter (rawTx)     ("next", v)         = E.val True
+getTransFilter (rawTx)     ("prev", v)         = E.val True
 
 getTransFilter (rawTx)     ("address", v)      = rawTx E.^. RawTransactionFromAddress E.==. E.val (toAddr v) E.||. rawTx E.^. RawTransactionToAddress E.==. E.val (Just (toAddr v))
 getTransFilter (rawTx)     ("from", v)         = rawTx E.^. RawTransactionFromAddress E.==. E.val (toAddr v)

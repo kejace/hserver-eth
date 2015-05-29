@@ -29,7 +29,7 @@ getBlkGasRangeR' g1 g2 offset = do addHeader "Access-Control-Allow-Origin" "*"
                                         E.limit $ limit
                                         E.offset $ (limit * off)
                                         return t
-                                   returnJson $ nub $ P.map bToBPrime (P.map entityVal (blks :: [Entity Block])) -- consider removing nub - it takes time n^{2}
+                                   returnJson $ nub $ P.map bToBPrime' (P.map entityVal (blks :: [Entity Block])) -- consider removing nub - it takes time n^{2}
                                    where 
                                        limit = (fromIntegral $ fetchLimit :: Int64)
                                        off   = (fromIntegral $ offset :: Int64)

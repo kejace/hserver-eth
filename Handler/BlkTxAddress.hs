@@ -75,7 +75,7 @@ getBlkTxAddressR' address offset = do
                                         E.orderBy [E.desc (bdRef E.^. BlockDataRefNumber)]
 
                                         return blk
-                   returnJson $ nub $ P.map bToBPrime (P.map entityVal (blks :: [Entity Block])) 
+                   returnJson $ nub $ P.map bToBPrime' (P.map entityVal (blks :: [Entity Block])) 
 
         where
           ((wd160, _):_) = readHex $ T.unpack $ address ::  [(Word160,String)]

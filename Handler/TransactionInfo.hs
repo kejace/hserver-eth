@@ -85,10 +85,9 @@ getTransactionInfoR = do
 
                                         -- E.orderBy [E.asc (bdRef E.^. BlockDataRefNumber)]
 
-
                                         E.offset $ (limit * offset)
                                         E.limit $ (limit)
-                                        E.orderBy [E.desc (rawTx E.^. RawTransactionNonce)]
+                                        E.orderBy [E.desc (rawTx E.^. RawTransactionBlockId)]
 
                                         return rawTx
                  liftIO $ traceIO $ "number of results: " P.++ (show $ P.length txs)

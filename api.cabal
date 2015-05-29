@@ -46,6 +46,7 @@ library
                      Handler.BlkTxAddress
                      Handler.Filters
                      Handler.Help
+                     Handler.TxLast
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
