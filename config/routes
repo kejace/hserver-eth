@@ -9,6 +9,7 @@
 
 /address-explorer.js AddressExplorerR GET
 /address-explorer.css AddressExplorerCSSR GET
+/pushtx.js PushTransactionR GET
 
 -- /query/transaction TransactionInfoR GET
 /query/block BlockInfoR GET
@@ -29,5 +30,6 @@
 /query/block/hash/#Text BlkHashR GET
 /query/block/last/#Integer BlkLastR GET
 /query/block/txaddress/#Text BlkTxAddressR GET
+/query/queued/ QueuedTransactionsR GET
 /index.html DemoR GET
 /includetransaction IncludeTransactionR POST OPTIONS

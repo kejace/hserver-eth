@@ -55,6 +55,8 @@ import Handler.Demo
 import Handler.BlkCoinbase
 import Handler.BlkTxAddress
 import Handler.IncludeTransaction
+import Handler.QueuedTransactions
+import Handler.PushTransaction
 
 -- This line actually creates our YesodDispatch instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see the

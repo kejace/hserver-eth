@@ -44,8 +44,10 @@ library
                      Handler.JsonJuggler
                      Handler.BlkCoinbase,
                      Handler.BlkTxAddress,
-                     Handler.IncludeTransaction
-
+                     Handler.IncludeTransaction,
+                     Handler.QueuedTransactions,
+                     Handler.PushTransaction
+		     
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
         ghc-options:   -Wall -fwarn-tabs -O0
