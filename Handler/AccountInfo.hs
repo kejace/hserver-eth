@@ -64,9 +64,9 @@ getAccountInfoR = do
                  let offset = (fromIntegral $ (maybe 0 id $ extractPage "page" getParameters)  :: Int64)
                  let index = (fromIntegral $ (maybe 0 id $ extractPage "index" getParameters)  :: Integer)
 
-                 liftIO $ traceIO $ "parameters: " P.++ show getParameters
-                 liftIO $ traceIO $ "index: " P.++ show index
-                 liftIO $ traceIO $ "offset: " P.++ show offset
+                 -- liftIO $ traceIO $ "parameters: " P.++ show getParameters
+                 -- liftIO $ traceIO $ "index: " P.++ show index
+                 -- liftIO $ traceIO $ "offset: " P.++ show offset
 
                  addHeader "Access-Control-Allow-Origin" "*"
 
@@ -81,7 +81,7 @@ getAccountInfoR = do
                                         E.orderBy [E.desc (accStateRef E.^. AddressStateRefBalance)]
 
                                         return accStateRef
-                 liftIO $ traceIO $ "number of results: " P.++ (show $ P.length addrs)
+                 --liftIO $ traceIO $ "number of results: " P.++ (show $ P.length addrs)
                  returnJson $ nub $ P.map asrToAsrPrime (P.map entityVal (addrs :: [Entity AddressStateRef])) -- consider removing nub - it takes time n^{2}
                  where 
                    limit = (fromIntegral $ fetchLimit :: Int64)

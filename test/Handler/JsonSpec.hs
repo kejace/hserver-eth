@@ -13,14 +13,13 @@ import qualified Data.List as DL
 import Data.Aeson
 import Data.Maybe
 
+import System.Exit (exitFailure)
+import System.IO (withFile, IOMode(..))
+
 import Yesod.Test
 
 import Handler.Common 
 import Blockchain.Data.DataDefs
-import Blockchain.Data.Address
-import Blockchain.Data.PersistTypes
-import Blockchain.Data.Transaction
-import Blockchain.Data.Code
 
 import Handler.BlockInfo
 
@@ -73,7 +72,7 @@ spec = withApp $
         bodyContains' "9178d0f23c965d81f0834a4c72c6253ce6830f4022b1359aaebfc1ecba442d4e"
         --testJSON  getFirstBlockSR "9178d0f23c965d81f0834a4c72c6253ce6830f4022b1359aaebfc1ecba442d4e"
         testJSON getFirstBlockNum 0
-        
+  --describe "Paging " $ do
      it "Paging" $ do --reqGetParams <$> getRequest
         get ("/query/block?number=100" :: Text)
         statusIs 200
@@ -107,7 +106,7 @@ spec = withApp $
 
      it "Last of previous index is one less than next index" $ do
         get $ qsIndex s 0
-        statusIs 200
+        statusIs 200000
         n1 <- withResponse $ \ res -> do 
           return $ snd $ (getFirstBlockNum (fromJust $ (decode (simpleBody res) :: Maybe [Block])) 0)
         get $ qsIndex s n1
@@ -117,3 +116,9 @@ spec = withApp $
         liftIO $ HUnit.assertBool("N+1: ") $ n1 == n2
         where s = "/query/block?minnumber=1&maxnumber=201&raw=1"
               qsIndex s n = s ++ "&index=" ++ (show  n)
+
+     -- it "Next"
+     --    get ("/query/block?minnumber=1&maxnumber=200" :: Text)
+     --    statusIs 200
+     --    n1 <- withResponse $ \res -> do
+     --        return $ 

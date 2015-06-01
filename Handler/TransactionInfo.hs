@@ -65,9 +65,9 @@ getTransactionInfoR = do
                  let offset = (fromIntegral $ (maybe 0 id $ extractPage "page" getParameters)  :: Int64)
                  let index = (fromIntegral $ (maybe 0 id $ extractPage "index" getParameters)  :: Integer)
                    
-                 liftIO $ traceIO $ "parameters: " P.++ show getParameters
-                 liftIO $ traceIO $ "index: " P.++ show index
-                 liftIO $ traceIO $ "offset: " P.++ show offset
+                 -- liftIO $ traceIO $ "parameters: " P.++ show getParameters
+                 -- liftIO $ traceIO $ "index: " P.++ show index
+                 -- liftIO $ traceIO $ "offset: " P.++ show offset
 
                  addHeader "Access-Control-Allow-Origin" "*"
                  txs <- runDB $ E.select $
@@ -90,7 +90,7 @@ getTransactionInfoR = do
                                         E.orderBy [E.desc (rawTx E.^. RawTransactionBlockId)]
 
                                         return rawTx
-                 liftIO $ traceIO $ "number of results: " P.++ (show $ P.length txs)
+                 --liftIO $ traceIO $ "number of results: " P.++ (show $ P.length txs)
                  returnJson $ nub $ P.map rtToRtPrime (P.map id (P.map entityVal (txs :: [Entity RawTransaction]))) -- consider removing nub - it takes time n^{2}
                  where 
                     limit = (fromIntegral $ fetchLimit :: Int64)

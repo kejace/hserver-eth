@@ -77,10 +77,10 @@ getBlockInfoR = do
                    let index  = (fromIntegral $ (maybe 0 id $ extractPage "index" getParameters)  :: Integer)
                    let raw    = (fromIntegral $ (maybe 0 id $ extractPage "raw" getParameters) :: Integer) > 0
 
-                   liftIO $ traceIO $ "parameters: " P.++ show getParameters
-                   liftIO $ traceIO $ "index: " P.++ show index
-                   liftIO $ traceIO $ "offset: " P.++ show offset
-                   liftIO $ traceIO $ "raw: " P.++ show raw
+                   -- liftIO $ traceIO $ "parameters: " P.++ show getParameters
+                   -- liftIO $ traceIO $ "index: " P.++ show index
+                   -- liftIO $ traceIO $ "offset: " P.++ show offset
+                   -- liftIO $ traceIO $ "raw: " P.++ show raw
                    
                    addHeader "Access-Control-Allow-Origin" "*"
 
@@ -103,11 +103,12 @@ getBlockInfoR = do
                                         E.orderBy [E.asc (bdRef E.^. BlockDataRefNumber)]
 
                                         return blk
-                   liftIO $ traceIO $ "number of results: " P.++ (show $ P.length blks)
+                   --liftIO $ traceIO $ "number of results: " P.++ (show $ P.length blks)
 
                    let modBlocks = (nub (P.map entityVal (blks :: [Entity Block])))
                    let newindex = pack $ show $ 1+(getNum $ P.last modBlocks)
                    let extra p = P.zipWith extraFilter p (P.repeat (newindex))
+                   -- this should actually use URL encoding code from Yesod
                    let next p = "/query/block?" P.++  (P.foldl1 (\a b -> (unpack a) P.++ "&" P.++ (unpack b)) $ P.map (\(k,v) -> (unpack k) P.++ "=" P.++ (unpack v)) (extra p))
                    let addedParam = appendIndex getParameters
 
@@ -127,7 +128,7 @@ instance Eq Param where
 instance Ord Param where
   (Param a) `compare` (Param b) = (fst a) `compare` (fst b)
 
-appendIndex :: [(Text, Text)] -> [(Text,Text)]
+appendIndex :: [(Text, Text)] -> [(Text,Text)] -- this sould be using URL encoding code from Yesod
 appendIndex l = P.map fromParam (Data.Set.toList $ Data.Set.insert (toParam ("index", "")) $ Data.Set.fromList $ P.map toParam l)
 
 extraFilter :: (Text,Text) -> Text -> (Text,Text)

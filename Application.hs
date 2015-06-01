@@ -68,6 +68,7 @@ import Handler.BlkCoinbase
 import Handler.BlkTxAddress
 import Handler.Help
 import Handler.TxLast
+import Handler.Test
 
 import Debug.Trace
 
@@ -108,7 +109,7 @@ makeFoundation appSettings = do
 
     -- Perform database migration using our application's logging settings.
     --runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
-    myLogger (runSqlPool (runMigration migrateAll) pool)
+    myLogger (runSqlPool (runMigrationSilent migrateAll) pool) --runMigration
 
     -- Return the foundation
     return $ mkFoundation pool

@@ -11,6 +11,7 @@
 
 /index.html DemoR GET
 /help.html HelpR GET
+/testreport.html TestR GET
 
 /query/block BlockInfoR GET
 /query/block/number/#Integer/ BlkNumberR GET
