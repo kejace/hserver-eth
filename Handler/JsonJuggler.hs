@@ -110,10 +110,12 @@ data Transaction' = Transaction' Transaction deriving (Eq, Show)
 instance ToJSON Transaction' where
     toJSON (Transaction' tx@(MessageTX tnon tgp tgl tto tval td tr ts tv)) = 
         object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "to" .= tto, "value" .= tval,
-        "data" .= td, "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show $ transactionSemantics $ tx)]
+        "data" .= td, "r" .= showHex tr "", "s" .= showHex ts "", "v" .= showHex tv "",
+        "transactionType" .= (show $ transactionSemantics $ tx)]
     toJSON (Transaction' tx@(ContractCreationTX tnon tgp tgl tval ti tr ts tv)) = 
         object ["nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "value" .= tval, "init" .= ti,
-        "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show $ transactionSemantics $ tx)]
+        "r" .= showHex tr "", "s" .= showHex ts "", "v" .= showHex tv "",
+        "transactionType" .= (show $ transactionSemantics $ tx)]
 
 instance FromJSON Transaction' where
     parseJSON (Object t) = do
