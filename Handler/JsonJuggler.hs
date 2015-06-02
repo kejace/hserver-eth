@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Handler.JsonJuggler where
 
@@ -13,10 +14,12 @@ import Blockchain.Data.Code
 
 import Data.Aeson
 import Data.ByteString.Lazy as BS
+import Data.ByteString.Base16 as B16
 import Database.Persist
 import Database.Persist.TH
 import Database.Persist.Postgresql
 import Data.ByteString
+import qualified Data.Text.Encoding as T
 
 import qualified Data.ByteString as B
 import qualified Database.Esqueleto as E
@@ -35,15 +38,65 @@ jsonBlk a = returnJson a
 data RawTransaction' = RawTransaction' RawTransaction deriving (Eq, Show)
 
 instance ToJSON RawTransaction' where
-    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl (Just (Address ta)) val cod v r s bid)) =
-        object ["kind" .= ("RawTransaction" :: String), "from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
-        "to" .= showHex ta "" , "value" .= show val, "codeOrData" .= cod, "v" .= v, "r" .= r, "s" .= s,
-        "blockId" .= bid, "transactionType" .= (show $ rawTransactionSemantics rt)]
-    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl Nothing val cod v r s bid)) =
-        object ["kind" .= ("RawTransaction" :: String), "from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
-        "value" .= show val, "codeOrData" .= cod, "v" .= v, "r" .= r, "s" .= s,
-        "blockId" .= bid, "transactionType" .= (show $ rawTransactionSemantics rt)]
+    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl (Just (Address ta)) val cod r s v bid bn h)) =
+        object ["from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
+        "to" .= showHex ta "" , "value" .= show val, "codeOrData" .= cod, 
+        "r" .= showHex r "",
+        "s" .= showHex s "",
+        "v" .= showHex v "",
+        "blockNumber" .= bn,
+        "hash" .= h,
+        "transactionType" .= (show $ rawTransactionSemantics rt)
+               ]
+    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl Nothing val cod r s v bid bn h)) =
+        object ["from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
+        "value" .= show val, "codeOrData" .= cod,
+        "r" .= showHex r "",
+        "s" .= showHex s "",
+        "v" .= showHex v "",
+        "blockNumber" .= bn,
+        "hash" .= h,
+        "transactionType" .= (show $ rawTransactionSemantics rt)
+               ]
 
+instance FromJSON RawTransaction' where
+    parseJSON (Object t) = do
+      fa <- fmap (fst P.. P.head P.. readHex) (t .: "from")       --- ugly ! stupid Prelude qualified import 
+      (tnon :: Int)  <- (t .: "nonce")
+      (tgp :: Int) <- (t .: "gasPrice")
+      (tgl :: Int) <- (t .: "gasLimit")
+      tto <- (t .:? "to")
+      let toFld = case tto of
+            (Just str) -> fmap (Address P.. fst P.. P.head P.. readHex) str
+            Nothing -> Nothing
+      tval <- fmap read (t .: "value")
+      tcd <- fmap (fst P..  B16.decode P.. T.encodeUtf8 ) (t .: "codeOrData")
+      (tr :: Integer) <- fmap (fst P.. P.head P.. readHex) (t .: "r")
+      (ts :: Integer) <- fmap (fst P.. P.head P.. readHex) (t .: "s")
+      (tv :: Word8) <- fmap (fst P.. P.head P.. readHex) (t .: "v")
+      mbid <- (t .:? "blockId")
+      mbn <- (t .:? "blockNumber")
+      h <- (t .: "hash")
+      let bid = case mbid of
+            Just bd -> bd
+            Nothing -> 1 -- annoying, needs to be reset on update
+          bn = case mbn of
+            Just b -> b
+            Nothing -> -1
+      
+      return (RawTransaction' (RawTransaction (Address fa)
+                                              (fromIntegral tnon :: Integer)
+                                              (fromIntegral $ tgp :: Integer)
+                                              (fromIntegral $ tgl :: Integer)
+                                              (toFld :: Maybe Address)
+                                              (tval :: Integer)
+                                              (tcd :: B.ByteString)
+                                              (tr :: Integer)
+                                              (ts :: Integer)
+                                              (tv :: Word8)
+                                              (toSqlKey bid)
+                                              bn
+                                              h))
 
 
 rtToRtPrime :: RawTransaction -> RawTransaction'
@@ -58,6 +111,49 @@ instance ToJSON Transaction' where
     toJSON (Transaction' tx@(ContractCreationTX tnon tgp tgl tval ti tr ts tv)) = 
         object ["kind" .= ("Transaction" :: String), "nonce" .= tnon, "gasPrice" .= tgp, "gasLimit" .= tgl, "value" .= tval, "init" .= ti,
         "r" .= tr, "s" .= ts, "v" .= tv, "transactionType" .= (show $ transactionSemantics $ tx)]
+
+instance FromJSON Transaction' where
+    parseJSON (Object t) = do
+      tto <- (t .:? "to")
+      tnon <- (t .: "nonce")
+      tgp <- (t .: "gasPrice")
+      tgl <- (t .: "gasLimit")
+      tval <- (t .: "value")
+      tr <- (t .: "r")
+      ts <- (t .: "s")
+      tv <- (t .: "v")
+
+      case tto of
+        Nothing -> do
+          ti <- (t .: "init")
+          return (Transaction' (ContractCreationTX tnon tgp tgl tval ti tr ts tv))
+        (Just to) -> do
+          td <- (t .: "data")
+          return (Transaction' (MessageTX tnon tgp tgl to tval td tr ts tv))
+        
+{-        case res of
+          Nothing -> Transaction' ( ContractCreationTX <$>
+                     (t .: "nonce") <*>
+                     (t .: "gasPrice") <*>
+                     (t .: "gasLimit") <*>
+                     (t .: "value") <*>
+                     (t .: "init") <*>
+                     (t .: "r") <*>
+                     (t .: "s") <*>
+                     (t .: "v") 
+                    )
+          _ ->      Transaction' ( MessageTX <$>
+                     (t .: "nonce") <*>
+                     (t .: "gasPrice") <*>
+                     (t .: "gasLimit") <*>
+                     (t .: "to" ) <*>   
+                     (t .: "value") <*>
+                     (t .: "data") <*>
+                     (t .: "r") <*>
+                     (t .: "s") <*>
+                     (t .: "v") 
+                    )
+-}
 
 tToTPrime :: Transaction -> Transaction'
 tToTPrime x = Transaction' x
@@ -96,13 +192,12 @@ bdToBdPrime x = BlockData' x
 data BlockDataRef' = BlockDataRef' BlockDataRef deriving (Eq, Show)
 
 instance ToJSON BlockDataRef' where
-      toJSON (BlockDataRef' (BlockDataRef ph uh cb@(Address a) sr tr rr lb d num gl gu ts ed non mh bi h)) = 
-        object ["next" .= next, "kind" .= ("BlockDataRef" :: String), "parentHash" .= ph, "unclesHash" .= uh, "coinbase" .= (showHex a ""), "stateRoot" .= sr,
+      toJSON (BlockDataRef' (BlockDataRef ph uh cb@(Address a) sr tr rr lb d num gl gu ts ed non mh bi h pow isConf td)) = 
+        object ["parentHash" .= ph, "unclesHash" .= uh, "coinbase" .= (showHex a ""), "stateRoot" .= sr,
         "transactionsRoot" .= tr, "receiptsRoot" .= rr, "difficulty" .= d, "number" .= num,
         "gasLimit" .= gl, "gasUsed" .= gu, "timestamp" .= ts, "extraData" .= ed, "nonce" .= non,
-        "mixHash" .= mh, "blockId" .= bi, "hash" .= h]
-       where next = "/query/block?" :: String
-      toJSON _ = object ["malformed BlockDataRef" .= True]
+        "mixHash" .= mh, "blockId" .= bi, "hash" .= h, "powVerified" .= pow, "isConfirmed" .= isConf, "totalDifficulty" .= td]
+
 
 
 bdrToBdrPrime :: BlockDataRef -> BlockDataRef'
@@ -127,7 +222,7 @@ adToAdPrime x = Address' x
 --instance ToJSON Address' where
 --  toJSON (Address' x) = object [ "address" .= (showHex x "") ]
 
-data TransactionType = Contract | FunctionCall | Transfer | JustTheSig deriving (Eq, Show)
+data TransactionType = Contract | FunctionCall | Transfer  deriving (Eq, Show)
 
 --instance ToJSON TransactionType where 
 --   toJSON x = object ["transactionType" .= show x]
@@ -135,11 +230,9 @@ data TransactionType = Contract | FunctionCall | Transfer | JustTheSig deriving 
 transactionSemantics :: Transaction -> TransactionType
 transactionSemantics t@(MessageTX tnon tgp tgl tto@(Address x) tval td tr ts tv) = work
     where work | (B.length td) > 0 = FunctionCall
-               | tval > 0  = Transfer
-               | otherwise = JustTheSig
+               | otherwise = Transfer
 transactionSemantics t@(ContractCreationTX tnon tgp tgl tval (Code ti) tr ts tv)
-     | (B.length ti > 0) || (tval > 0) = Contract
-     | otherwise = JustTheSig                                   
+     | otherwise = Contract                                  
 
 isAddr :: Maybe Address -> Bool
 isAddr a = case a of
@@ -147,8 +240,7 @@ isAddr a = case a of
       Nothing  -> False
 
 rawTransactionSemantics :: RawTransaction -> TransactionType
-rawTransactionSemantics t@(RawTransaction fa non gp gl ta val cod v r s bid) = work
-     where work | (not (isAddr ta)) && ((Data.ByteString.length cod) >= 0)   = Contract
+rawTransactionSemantics t@(RawTransaction fa non gp gl ta val cod v r s bid bn h) = work
+     where work | (not (isAddr ta))  = Contract
                 | (isAddr ta) &&  ((Data.ByteString.length cod) > 0)        = FunctionCall
-              --  | (not (isAddr ta)) && ((Data.ByteString.length cod) == 0)  = JustTheSig                                                              
                 | otherwise = Transfer

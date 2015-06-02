@@ -8,10 +8,14 @@
 
 /address-explorer.js AddressExplorerR GET
 /address-explorer.css AddressExplorerCSSR GET
+/pushtx.js PushTransactionR GET
 
 /index.html DemoR GET
 /help.html HelpR GET
 /testreport.html TestR GET
+
+/query/queued/ QueuedTransactionsR GET
+/includetransaction IncludeTransactionR POST OPTIONS
 
 /query/block BlockInfoR GET
 /query/block/number/#Integer/ BlkNumberR GET

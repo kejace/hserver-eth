@@ -106,7 +106,7 @@ spec = withApp $
 
      it "Last of previous index is one less than next index" $ do
         get $ qsIndex s 0
-        statusIs 200000
+        statusIs 200
         n1 <- withResponse $ \ res -> do 
           return $ snd $ (getFirstBlockNum (fromJust $ (decode (simpleBody res) :: Maybe [Block])) 0)
         get $ qsIndex s n1
@@ -121,4 +121,4 @@ spec = withApp $
      --    get ("/query/block?minnumber=1&maxnumber=200" :: Text)
      --    statusIs 200
      --    n1 <- withResponse $ \res -> do
-     --        return $ 
+     --        return $

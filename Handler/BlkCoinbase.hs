@@ -58,17 +58,17 @@ getBlkCoinbaseNumR address = do
                            where ((wd160, _):_) = readHex $ T.unpack $ address ::  [(Word160,String)]
 
 
-data BdrPWNum = BdrPWNum BlockDataRef' Int
-instance ToJSON BdrPWNum where
-    toJSON (BdrPWNum xx@(BlockDataRef' (BlockDataRef ph uh cb@(Address a) sr tr rr lb d num gl gu ts ed non mh bi h)) n) = 
-        object ["parentHash" .= ph, "unclesHash" .= uh, "coinbase" .= (showHex a ""), "stateRoot" .= sr,
-        "transactionsRoot" .= tr, "receiptsRoot" .= rr, "difficulty" .= d, "number" .= num,
-        "gasLimit" .= gl, "gasUsed" .= gu, "timestamp" .= ts, "extraData" .= ed, "nonce" .= non,
-        "mixHash" .= mh, "blockId" .= bi, "hash" .= h, "numQuery" .= n]
+-- data BdrPWNum = BdrPWNum BlockDataRef' Int
+-- instance ToJSON BdrPWNum where
+--     toJSON (BdrPWNum xx@(BlockDataRef' (BlockDataRef ph uh cb@(Address a) sr tr rr lb d num gl gu ts ed non mh bi h)) n) = 
+--         object ["parentHash" .= ph, "unclesHash" .= uh, "coinbase" .= (showHex a ""), "stateRoot" .= sr,
+--         "transactionsRoot" .= tr, "receiptsRoot" .= rr, "difficulty" .= d, "number" .= num,
+--         "gasLimit" .= gl, "gasUsed" .= gu, "timestamp" .= ts, "extraData" .= ed, "nonce" .= non,
+--         "mixHash" .= mh, "blockId" .= bi, "hash" .= h, "numQuery" .= n]
 
-btobn (b, n) = BdrPWNum (bdrToBdrPrime b) n
+-- btobn (b, n) = BdrPWNum (bdrToBdrPrime b) n
 
-untuple (a, b) = (entityVal a, E.unValue b)
+-- untuple (a, b) = (entityVal a, E.unValue b)
 
 -- getBlkCoinbaseR' :: Text -> Handler Value
 -- getBlkCoinbaseR' address = do

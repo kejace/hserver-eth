@@ -43,11 +43,14 @@ library
                      Handler.Demo
                      Handler.JsonJuggler
                      Handler.BlkCoinbase,
-                     Handler.BlkTxAddress
                      Handler.Filters
                      Handler.Help
                      Handler.TxLast
                      Handler.Test
+                     Handler.BlkTxAddress,
+                     Handler.IncludeTransaction,
+                     Handler.QueuedTransactions,
+                     Handler.PushTransaction
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
