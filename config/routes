@@ -9,7 +9,7 @@
 
 /address-explorer.js AddressExplorerR GET
 /address-explorer.css AddressExplorerCSSR GET
-/pushtx.js PushTransactionR GET
+/includetransaction/pushtx.js PushTransactionR GET
 
 -- /query/transaction TransactionInfoR GET
 /query/block BlockInfoR GET
