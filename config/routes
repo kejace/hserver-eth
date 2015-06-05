@@ -8,7 +8,7 @@
 
 /address-explorer.js AddressExplorerR GET
 /address-explorer.css AddressExplorerCSSR GET
-/pushtx.js PushTransactionR GET
+/includetransaction/pushtx.js PushTransactionR GET
 
 /index.html DemoR GET
 /help.html HelpR GET
