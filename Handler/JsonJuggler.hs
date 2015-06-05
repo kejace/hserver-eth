@@ -35,11 +35,12 @@ import Prelude as P
 jsonBlk :: (ToJSON a, Monad m) => a -> m Value
 jsonBlk a = returnJson a
 
-data RawTransaction' = RawTransaction' RawTransaction deriving (Eq, Show)
+data RawTransaction' = RawTransaction' RawTransaction String deriving (Eq, Show)
+
 
 instance ToJSON RawTransaction' where
-    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl (Just (Address ta)) val cod r s v bid bn h)) =
-        object ["from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
+    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl (Just (Address ta)) val cod r s v bid bn h) next) =
+        object ["next" .= next, "from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
         "to" .= showHex ta "" , "value" .= show val, "codeOrData" .= cod, 
         "r" .= showHex r "",
         "s" .= showHex s "",
@@ -48,8 +49,8 @@ instance ToJSON RawTransaction' where
         "hash" .= h,
         "transactionType" .= (show $ rawTransactionSemantics rt)
                ]
-    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl Nothing val cod r s v bid bn h)) =
-        object ["from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
+    toJSON (RawTransaction' rt@(RawTransaction (Address fa) non gp gl Nothing val cod r s v bid bn h) next) =
+        object ["next" .= next, "from" .= showHex fa "", "nonce" .= non, "gasPrice" .= gp, "gasLimit" .= gl,
         "value" .= show val, "codeOrData" .= cod,
         "r" .= showHex r "",
         "s" .= showHex s "",
@@ -96,11 +97,14 @@ instance FromJSON RawTransaction' where
                                               (tv :: Word8)
                                               (toSqlKey bid)
                                               bn
-                                              h))
+                                              h) "") 
 
 
-rtToRtPrime :: RawTransaction -> RawTransaction'
-rtToRtPrime x = RawTransaction' x
+rtToRtPrime :: (String , RawTransaction) -> RawTransaction'
+rtToRtPrime (s, x) = RawTransaction' x s
+
+rtToRtPrime' :: RawTransaction -> RawTransaction'
+rtToRtPrime' x = RawTransaction' x ""
 
 data Transaction' = Transaction' Transaction deriving (Eq, Show)
 
@@ -165,7 +169,6 @@ instance ToJSON Block' where
         object ["next" .= next, "kind" .= ("Block" :: String), "blockData" .= bdToBdPrime bd,
          "receiptTransactions" .= P.map tToTPrime rt,
          "blockUncles" .= P.map bdToBdPrime bu]
-       --where next = ("/query/block?" :: String)
 
       toJSON _ = object ["malformed Block" .= True]
 

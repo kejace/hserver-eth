@@ -28,6 +28,7 @@ import Blockchain.Data.DataDefs
 import Blockchain.Data.Address
 
 import Control.Monad
+import Data.Set
 
 
 import Import
@@ -116,6 +117,7 @@ getTransFilter (rawTx)     ("minvalue", v)     = rawTx E.^. RawTransactionValue 
 getTransFilter (rawTx)     ("maxvalue", v)     = rawTx E.^. RawTransactionValue E.<=. E.val (P.read $ T.unpack v :: Integer)
 
 getTransFilter (rawTx)     ("blockid", v)      = rawTx E.^. RawTransactionBlockId E.==. E.val (toBlockId v)
+getTransFilter (rawTx)     ("blocknumber", v)  = rawTx E.^. RawTransactionBlockNumber E.==. E.val (P.read $ T.unpack v :: Int)
 
 
 toBlockId v = toSqlKey (fromIntegral $ (P.read $ T.unpack v :: Integer) )
@@ -134,3 +136,29 @@ extractPage name ts = Control.Monad.foldM toFold 0 (P.map selectPage ts)
        selectPage (s, v) | T.unpack s == name = Just (P.read $ T.unpack v :: Integer)
                          | otherwise = Nothing
        selectPage (_, v) = Nothing
+
+
+toParam a = Param a
+fromParam (Param a) = a
+
+data Param = Param (Text,Text)
+instance Eq Param where
+  Param a == Param b = fst a == fst b
+instance Ord Param where
+  (Param a) `compare` (Param b) = (fst a) `compare` (fst b)
+
+appendIndex :: [(Text, Text)] -> [(Text,Text)] -- this sould be using URL encoding code from Yesod
+appendIndex l = P.map fromParam (Data.Set.toList $ Data.Set.insert (toParam ("index", "")) $ Data.Set.fromList $ P.map toParam l)
+
+extraFilter :: (Text,Text) -> Text -> (Text,Text)
+extraFilter ("index", v) v' = ("index", v')
+extraFilter (a,b) v'        = (a,b)
+
+getBlockNum :: Block -> Integer
+getBlockNum (Block (BlockData ph uh cb@(Address a) sr tr rr lb d num gl gu ts ed non mh) rt bu) = num 
+
+getTxNum :: RawTransaction -> Int
+getTxNum (RawTransaction (Address fa) non gp gl ta val cod r s v bid bn h) = bn
+
+if' :: Bool -> a -> b -> Either a b
+if' x a b = if x == True then Left a else Right b

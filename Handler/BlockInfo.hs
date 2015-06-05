@@ -66,8 +66,6 @@ import Data.Set
 blockIdRef :: (E.Esqueleto query expr backend) =>(expr (Entity BlockDataRef), expr (Entity Block))-> expr (E.Value Bool)
 blockIdRef (a, t) = (a E.^. BlockDataRefBlockId E.==. t E.^. BlockId)
                     
-if' :: Bool -> a -> b -> Either a b
-if' x a b = if x == True then Left a else Right b
 
 getBlockInfoR :: Handler Value
 getBlockInfoR = do
@@ -106,7 +104,7 @@ getBlockInfoR = do
                    --liftIO $ traceIO $ "number of results: " P.++ (show $ P.length blks)
 
                    let modBlocks = (nub (P.map entityVal (blks :: [Entity Block])))
-                   let newindex = pack $ show $ 1+(getNum $ P.last modBlocks)
+                   let newindex = pack $ show $ 1+(getBlockNum $ P.last modBlocks)
                    let extra p = P.zipWith extraFilter p (P.repeat (newindex))
                    -- this should actually use URL encoding code from Yesod
                    let next p = "/query/block?" P.++  (P.foldl1 (\a b -> (unpack a) P.++ "&" P.++ (unpack b)) $ P.map (\(k,v) -> (unpack k) P.++ "=" P.++ (unpack v)) (extra p))
@@ -119,37 +117,3 @@ getBlockInfoR = do
                               Right b -> returnJson b
                    limit = (fromIntegral $ fetchLimit :: Int64)
                    
-toParam a = Param a
-fromParam (Param a) = a
-
-data Param = Param (Text,Text)
-instance Eq Param where
-  Param a == Param b = fst a == fst b
-instance Ord Param where
-  (Param a) `compare` (Param b) = (fst a) `compare` (fst b)
-
-appendIndex :: [(Text, Text)] -> [(Text,Text)] -- this sould be using URL encoding code from Yesod
-appendIndex l = P.map fromParam (Data.Set.toList $ Data.Set.insert (toParam ("index", "")) $ Data.Set.fromList $ P.map toParam l)
-
-extraFilter :: (Text,Text) -> Text -> (Text,Text)
-extraFilter ("index", v) v' = ("index", v')
-extraFilter (a,b) v'        = (a,b)
-
-getNum:: Block -> Integer
---getNum (Block (BlockData{number = n})) = n
-getNum (Block (BlockData ph uh cb@(Address a) sr tr rr lb d num gl gu ts ed non mh) rt bu) = num 
-
-getSR:: Block -> String
-getSR (Block (BlockData ph uh cb@(Address a) sr tr rr lb d num gl gu ts ed non mh) rt bu) = show sr 
-
-getLengthOfBlocks :: [Block] -> Integer -> (Bool, Integer)
-getLengthOfBlocks x n = ((P.length x) == fromIntegral n, fromIntegral $ P.length x)
-
-getFirstBlockNum :: [Block] -> Integer -> (Bool, Integer)
-getFirstBlockNum (x:xs) n = (getNum x == n, getNum x)
-
-getLastBlockNum :: [Block] -> Integer -> (Bool, Integer)
-getLastBlockNum x n = getFirstBlockNum (P.reverse x) n
-
-getFirstBlockSR :: [Block] -> String -> (Bool, String)
-getFirstBlockSR (x:xs) n = (getSR x == n, getSR x) 

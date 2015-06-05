@@ -34,4 +34,4 @@ getTxLastR' num = do
                               --   E.offset $ (limit * off)
                                  E.orderBy [E.desc (rawTX E.^. RawTransactionBlockId)]  
                                  return rawTX
-                           returnJson $ P.map rtToRtPrime (P.map entityVal (tx :: [Entity RawTransaction]))
+                           returnJson $ P.map rtToRtPrime' (P.map entityVal (tx :: [Entity RawTransaction]))

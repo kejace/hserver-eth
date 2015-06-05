@@ -22,6 +22,8 @@ import Handler.Common
 import Blockchain.Data.DataDefs
 
 import Handler.BlockInfo
+import Blockchain.Data.Address
+import Handler.Filters
 
 import Debug.Trace
 mydebug = flip trace
@@ -33,16 +35,6 @@ bodyContains' :: String -> YesodExample site ()
 bodyContains' text = withResponse $ \ res ->
   liftIO $ HUnit.assertBool ("Expected body to contain " ++ text) $
     (simpleBody res) `contains` text
-
-
-
--- testJSONObject :: (Show a, Eq a) => ([Block] -> a -> Bool) -> a -> YesodExample site ()
--- testJSONObject n = withResponse $ \ res ->
---   liftIO $ HUnit.assertBool ("Expected JSON to parse " ++ show n) $
-
---    myobj res == n
---    where myobj res = getFirstBlockNum (fromJust (decode (simpleBody res) :: Maybe [Block]))
-
 
 testJSON :: (Show a, Eq a) => ([Block] -> a -> (Bool, a)) -> a -> YesodExample site ()
 testJSON f n = withResponse $ \ res ->
@@ -56,27 +48,46 @@ checkKeyValue k v = withResponse $ \ SResponse { simpleHeaders = h } ->
                          fromJust (lookup k h) == v
 
 
+getSR:: Block -> String
+getSR (Block (BlockData ph uh cb@(Address a) sr tr rr lb d num gl gu ts ed non mh) rt bu) = show sr 
+
+getLengthOfBlocks :: [a] -> Integer -> (Bool, Integer)
+getLengthOfBlocks x n = ((length x) == fromIntegral n, fromIntegral $ length x)
+
+mapOnData :: (Eq b) => (a -> b) -> [a] -> b -> (Bool, b)
+mapOnData f (x:xs) n = (f x == n, f x)
+
+mapFirstOnData :: (Eq b) => (a -> b) -> [a] -> b -> (Bool, b)
+mapFirstOnData f (x:xs) n = (f x == n, f x)
+
+getFirstBlockSR = mapFirstOnData getSR
+getFirstBlockNum = mapFirstOnData getBlockNum
+getFirstTxNum = mapFirstOnData getTxNum
+getLastBlockNum x n = getFirstBlockNum (reverse x) n
 
 
 spec :: Spec
 spec = withApp $
-  describe "Account endpoints" $ do
+    describe "JSON fixed endpoints" $ do
+    describe "Account endpoints" $ do
      it "First account" $ do
         get $ AccAddressR "1c11aa45c792e202e9ffdc2f12f99d0d209bef70"
         statusIs 200
         bodyContains' "contractRoot"
-  --describe "Block endpoints" $ do
+    describe "Query string" $ do
+    describe "Blocks" $ do
      it "Genesis block" $ do
         get $ ("/query/block?number=0&raw=1" :: Text)
         statusIs 200 
         bodyContains' "9178d0f23c965d81f0834a4c72c6253ce6830f4022b1359aaebfc1ecba442d4e"
         --testJSON  getFirstBlockSR "9178d0f23c965d81f0834a4c72c6253ce6830f4022b1359aaebfc1ecba442d4e"
         testJSON getFirstBlockNum 0
-  --describe "Paging " $ do
+
      it "Paging" $ do --reqGetParams <$> getRequest
         get ("/query/block?number=100" :: Text)
         statusIs 200
         bodyContains' "\"number\":100"
+
      it "Indexing" $ do
         get ("/query/block?maxnumber=100&index=51&raw=1" :: Text)
         statusIs 200
@@ -92,10 +103,6 @@ spec = withApp $
         testJSON getLengthOfBlocks 1
         testJSON getFirstBlockNum 0
 
-     it "Transaction from block" $ do
-        get ("/query/transaction?blockid=0&raw=1" :: Text)
-        statusIs 200
-
      it "Access pattern" $ do
         get ("/query/block?minnumber=0&maxnumber=50&index=0&raw=1" :: Text)
         checkKeyValue "Access-Control-Allow-Origin" "*"
@@ -103,22 +110,30 @@ spec = withApp $
      it "Content type" $ do
         get ("/query/block?minnumber=0&maxnumber=50&index=0&raw=1" :: Text)
         checkKeyValue "Content-Type" "application/json; charset=utf-8"
-
-     it "Last of previous index is one less than next index" $ do
-        get $ qsIndex s 0
+    describe "Transaction endpoints" $ do
+     it "Transaction from block" $ do
+        get ("/query/transaction?blockid=0&raw=1" :: Text)
+        statusIs 200
+    describe "Complicated endpoints" $ do
+     it "Last of previous index is one less than next index for blocks" $ do
+        get $ "/query/block?minnumber=1&maxnumber=201&raw=1" ++ "&index=" ++ (show 0)
         statusIs 200
         n1 <- withResponse $ \ res -> do 
           return $ snd $ (getFirstBlockNum (fromJust $ (decode (simpleBody res) :: Maybe [Block])) 0)
-        get $ qsIndex s n1
+        get $ "/query/block?minnumber=1&maxnumber=201&raw=1" ++ "&index=" ++ (show  n1)
         testJSON getLengthOfBlocks 100
         n2 <- withResponse $ \ res -> do 
           return $ snd $ (getFirstBlockNum (fromJust $ (decode (simpleBody res) :: Maybe [Block])) 0)
         liftIO $ HUnit.assertBool("N+1: ") $ n1 == n2
-        where s = "/query/block?minnumber=1&maxnumber=201&raw=1"
-              qsIndex s n = s ++ "&index=" ++ (show  n)
 
-     -- it "Next"
-     --    get ("/query/block?minnumber=1&maxnumber=200" :: Text)
-     --    statusIs 200
-     --    n1 <- withResponse $ \res -> do
-     --        return $
+     it "Last of previous index is one less than next index for transactions" $ do
+        get $ "/query/transaction?minvalue=1&maxvalue=200000001&raw=1" ++ "&index=" ++ (show 0)
+        statusIs 200
+        n1 <- withResponse $ \ res -> do 
+          return $ snd $ (getFirstTxNum (fromJust $ (decode (simpleBody res) :: Maybe [RawTransaction])) 0)
+        liftIO $ traceIO $ show n1
+        get $ "/query/transaction?minvalue=1&maxvalue=200000001&raw=1" ++ "&index=" ++ (show  n1)
+        testJSON getLengthOfBlocks 100
+        n2 <- withResponse $ \ res -> do 
+          return $ snd $ (getFirstTxNum (fromJust $ (decode (simpleBody res) :: Maybe [RawTransaction])) 0)
+        liftIO $ HUnit.assertBool("N+1: ") $ n1 == n2        

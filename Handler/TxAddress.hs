@@ -39,7 +39,7 @@ getTxAddressR' address offset = do
                                  E.offset $ (limit * off)
                                  E.orderBy [E.desc (rawTX E.^. RawTransactionNonce)]  
                                  return rawTX
-                           returnJson $ P.map rtToRtPrime (P.map entityVal (tx :: [Entity RawTransaction]))
+                           returnJson $ P.map rtToRtPrime' (P.map entityVal (tx :: [Entity RawTransaction]))
                          where
                            ((wd160, _):_) = readHex $ T.unpack $ address ::  [(Word160,String)]
                            limit = (fromIntegral $ fetchLimit :: Int64)
