@@ -13,6 +13,7 @@
 /index.html DemoR GET
 /help.html HelpR GET
 /testreport.html TestR GET
+/stats.html StatsR GET
 
 /query/queued/ QueuedTransactionsR GET
 /includetransaction IncludeTransactionR POST OPTIONS
@@ -47,3 +48,6 @@
 /query/transaction/address/#Text/#Integer TxAddressR' GET
 /query/transaction/last/ TxLastR GET
 /query/transaction/last/#Integer TxLastR' GET
+
+/query/stats/difficulty StatDiffR GET
+/query/stats/totaltx StatTxR GET

@@ -29,7 +29,7 @@ getAccAddressR' :: Text -> Integer -> Handler Value
 getAccAddressR' address offset = do
                            addHeader "Access-Control-Allow-Origin" "*"
                            addr <- runDB $ selectList [ AddressStateRefAddress ==. (toAddr address) ] [ LimitTo limit , OffsetBy (limit * off) ] :: Handler [Entity AddressStateRef]
-                           returnJson $ P.map asrToAsrPrime (P.map entityVal (addr :: [Entity AddressStateRef])) -- consider removing nub - it takes time n^{2}
+                           returnJson $ P.map asrToAsrPrime' (P.map entityVal (addr :: [Entity AddressStateRef])) -- consider removing nub - it takes time n^{2}
                          where
                            ((wd160, _):_) = readHex $ T.unpack $ address ::  [(Word160,String)]
                            limit = (fromIntegral $ fetchLimit :: Int)

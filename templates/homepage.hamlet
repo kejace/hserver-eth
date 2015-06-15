@@ -1,4 +1,7 @@
-<script src=https://code.jquery.com/jquery-2.1.4.min.js>
+<script src=static/js/jquery-2.1.4.min.js>
+
+<div class="row text-center">
+  <img src="static/images/logo.png" width=200>
 
 <h1>BlockApps.net - the most convenient and reliable API for writing Blockchain Based applications.
 

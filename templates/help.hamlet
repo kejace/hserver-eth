@@ -1,18 +1,49 @@
-<script src=https://code.jquery.com/jquery-2.1.4.min.js>
+<script src=static/js/jquery-2.1.4.min.js>
 
 <h1>Querystring help
+
+<h3> Example queries
+
+The following are some natural queries in human language and their REST equivalent:
+
+<div class="container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="col-sm-6">How many transactions came from account <code>1c11aa45c792e202e9ffdc2f12f99d0d209bef70</code> with a minimum gasprice of <code>3000000</code>
+        <th id="txNums" class="col-sm-3">
+        <th class="col-sm-3"><a href="/query/transaction?from=1c11aa45c792e202e9ffdc2f12f99d0d209bef70&mingasprice=3000000">see query</a>
+      <tr>
+        <th class="col-sm-6">What's the number of transactions in block <code>30255</code>:
+        <th id="blTx" class="col-sm-3">
+        <th class="col-sm-3"><a href="/query/transaction?blocknumber=30255">see query</a>
+      <tr>
+        <th class="col-sm-6">Let's get the all blocks that have the address <code>1c11aa45c792e202e9ffdc2f12f99d0d209bef70</code> in it:
+        <th id="blAd" class="col-sm-3">
+        <th class="col-sm-3"><a href="/query/block?address=1c11aa45c792e202e9ffdc2f12f99d0d209bef70">see query</a>
+      <tr>
+        <th class="col-sm-6">Let's get the all blocks between <code>500</code> and <code>5000</code> with gasprice between <code>100000</code> and <code>2000000</code>:
+        <th id="blN" class="col-sm-3">
+        <th class="col-sm-3"><a href="/query/block?minnumber=500&maxnumber=5000&mingaslim=100000&maxgaslim=200000000">see query</a>
+      <tr>
+        <th class="col-sm-6">What's the number of accounts with balance between <code>1</code> and <code>1000000</code>:
+        <th id="accN" class="col-sm-3">
+        <th class="col-sm-3"><a href="/query/account?minbalance=1&maxbalance=1000000">see query</a>
+
+
 
 <h2> Endpoints
 
 <p>There are three REST endpoints, corrensponding to the query of a block, address and a transaction, respectively.
-<p>All of these queries can be appended with <code>page=n</code> for pageing. Pageing starts at 0 so <code>/query?block=xxxx</code> is equivalent to <code>/query?block=xxxx&amp;page=0</code>. For blocks we support indexing. If you want to query a large range, supply <code>index=n</code> where <code>n-1</code> is the last block that you queried. This will supersede paging eventually for all queries.
+<p>All of these queries can be appended with <code>page=n</code> for pageing. Pageing starts at 0 so <code>/query?block=xxxx</code> is equivalent to <code>/query?block=xxxx&amp;page=0</code>. For blocks we support indexing. If you want to query a large range, supply <code>index=n</code> where <code>n-1</code> is the last block that you queried. This will supersede paging once we include indexing for accounts.
 
-<h3 id="queryblock"><code>/query/block?</code></h3>
+
+<h3<code>/query/block?</h3>
 
 Note that <code>blocks</code> come with a <code>next</code> field that contains the index for the next 100 results.
 
 <ul>
-<li><a href="/query/block?number=0"><code>number</code></a>, <a href="/query/block?maxnumber=10"><code>maxnumber</code></a>, <a href="/query/block?minnumber=20"><code>minnumber</code></a>
+<li><a href="/query/block?number=0"><code>number</code></a>, <a href="/query/block?maxnumber=20"><code>maxnumber</code></a>, <a href="/query/block?minnumber=200"><code>minnumber</code></a>
 
 <li><a href="/query/block?gaslim=3141592"><code>gas</code></a>, <a href="/query/block?maxgaslim=21352342343"><code>maxgaslim</code></a>, <a href="/query/block?mingaslim=21353"><code>mingaslim</code><br /></a>
 
@@ -25,7 +56,7 @@ Note that <code>blocks</code> come with a <code>next</code> field that contains 
 <li><a href="/query/block?address=1c11aa45c792e202e9ffdc2f12f99d0d209bef70"><code>address</code></a>
 <li><a href="/query/block?hash=58b3ed866c3498b778b62f070cd6894f1976375c09c9581fe842a25d22d14d8e"><code>hash</code></a>
 
-<h3 id="account"><code>/query/account?</code></h3>
+<h3>/query/account?</h3>
 
 <li><a href="/query/account?balance=213"><code>balance</code></a>, <a href="/query/account?maxbalance=213"><code>maxbalance</code></a>, <a href="/query/account?minbalance=213"><code>minbalance</code></a>
 
@@ -33,7 +64,7 @@ Note that <code>blocks</code> come with a <code>next</code> field that contains 
 
 <li><a href="/query/account?address=1c11aa45c792e202e9ffdc2f12f99d0d209bef70"><code>address</code></a>
     
-<h3 id="transaction"><code>/query/transaction?</code></h3>
+<h3 id="transaction">/query/transaction?</h3>
 
 Note that <code>blocks</code> come with a <code>next</code> field that contains the index for the next 100 results.
 
@@ -46,6 +77,10 @@ Note that <code>blocks</code> come with a <code>next</code> field that contains 
 <li><a href="/query/transaction?gaslimit=3000000"><code>gaslimit</code></a>, <a href="/query/transaction?maxgaslimit=30000000"><code>maxgaslimit</code></a>, <a href="/query/transaction?mingaslimit=213"><code>mingaslimit</code></a>
 
 <li><a href="/query/transaction?blocknumber=22973"><code>blocknumber</code></a>
+
+<h2> Extra parameters
+<li> <code>raw=1</code> passes the pre-processor and gives you the raw result (default: <code>raw=0</code>)
+<li> <code>index=</code> acts as a cursor for querying the next 100 items correctly. See also the <code>next</code> field.
 
 <h2> Types of transactions
 

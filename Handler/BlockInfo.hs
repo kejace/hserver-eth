@@ -95,7 +95,7 @@ getBlockInfoR = do
 
                                         E.where_ (P.foldl1 (E.&&.) allCriteria)
 
-                                        E.offset $ (limit * offset)
+                                        --E.offset $ (limit * offset)
                                         E.limit $ limit
 
                                         E.orderBy [E.asc (bdRef E.^. BlockDataRefNumber)]

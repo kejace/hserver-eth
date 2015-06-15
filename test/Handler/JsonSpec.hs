@@ -25,6 +25,8 @@ import Handler.BlockInfo
 import Blockchain.Data.Address
 import Handler.Filters
 
+import System.TimeIt
+
 import Debug.Trace
 mydebug = flip trace
 
@@ -66,6 +68,8 @@ getFirstTxNum = mapFirstOnData getTxNum
 getLastBlockNum x n = getFirstBlockNum (reverse x) n
 
 
+
+
 spec :: Spec
 spec = withApp $
     describe "JSON fixed endpoints" $ do
@@ -74,7 +78,7 @@ spec = withApp $
         get $ AccAddressR "1c11aa45c792e202e9ffdc2f12f99d0d209bef70"
         statusIs 200
         bodyContains' "contractRoot"
-    describe "Query string" $ do
+    describe "JSON Query string" $ do
     describe "Blocks" $ do
      it "Genesis block" $ do
         get $ ("/query/block?number=0&raw=1" :: Text)
@@ -82,11 +86,6 @@ spec = withApp $
         bodyContains' "9178d0f23c965d81f0834a4c72c6253ce6830f4022b1359aaebfc1ecba442d4e"
         --testJSON  getFirstBlockSR "9178d0f23c965d81f0834a4c72c6253ce6830f4022b1359aaebfc1ecba442d4e"
         testJSON getFirstBlockNum 0
-
-     it "Paging" $ do --reqGetParams <$> getRequest
-        get ("/query/block?number=100" :: Text)
-        statusIs 200
-        bodyContains' "\"number\":100"
 
      it "Indexing" $ do
         get ("/query/block?maxnumber=100&index=51&raw=1" :: Text)
@@ -101,6 +100,12 @@ spec = withApp $
         get ("/query/block?maxnumber=0&minnumber=0&raw=1" :: Text)
         statusIs 200
         testJSON getLengthOfBlocks 1
+        testJSON getFirstBlockNum 0
+
+     it "First 100 blocks through inequalities" $ do
+        get ("/query/block?maxnumber=100&minnumber=0&raw=1" :: Text)
+        statusIs 200
+        testJSON getLengthOfBlocks 100
         testJSON getFirstBlockNum 0
 
      it "Access pattern" $ do
@@ -136,4 +141,4 @@ spec = withApp $
         testJSON getLengthOfBlocks 100
         n2 <- withResponse $ \ res -> do 
           return $ snd $ (getFirstTxNum (fromJust $ (decode (simpleBody res) :: Maybe [RawTransaction])) 0)
-        liftIO $ HUnit.assertBool("N+1: ") $ n1 == n2        
+        liftIO $ HUnit.assertBool("N+1: ") $ n1 == n2

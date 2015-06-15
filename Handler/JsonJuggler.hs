@@ -178,7 +178,6 @@ instance ToJSON Block' where
 bToBPrime :: (String , Block) -> Block'
 bToBPrime (s, x) = Block' x s
 
-
 bToBPrime' :: Block -> Block'
 bToBPrime' x = Block' x ""
 
@@ -209,15 +208,20 @@ instance ToJSON BlockDataRef' where
 bdrToBdrPrime :: BlockDataRef -> BlockDataRef'
 bdrToBdrPrime x = BlockDataRef' x
 
-data AddressStateRef' = AddressStateRef' AddressStateRef deriving (Eq, Show)
+data AddressStateRef' = AddressStateRef' AddressStateRef String deriving (Eq, Show)
 
 instance ToJSON AddressStateRef' where
-    toJSON (AddressStateRef' (AddressStateRef a@(Address x) n b cr ch)) = 
-        object ["kind" .= ("AddressStateRef" :: String), "address" .= (showHex x ""), "nonce" .= n, "balance" .= show b, 
+    toJSON (AddressStateRef' (AddressStateRef a@(Address x) n b cr ch) next) = 
+        object ["next" .= next, "kind" .= ("AddressStateRef" :: String), "address" .= (showHex x ""), "nonce" .= n, "balance" .= show b, 
         "contractRoot" .= cr, "codeHash" .= ch]
 
-asrToAsrPrime :: AddressStateRef -> AddressStateRef'
-asrToAsrPrime x = AddressStateRef' x
+asrToAsrPrime :: (String, AddressStateRef) -> AddressStateRef'
+asrToAsrPrime (s,x) = AddressStateRef' x s
+
+asrToAsrPrime' :: AddressStateRef -> AddressStateRef'
+asrToAsrPrime' x = AddressStateRef' x ""
+
+
 
 --jsonFix x@(AddressStateRef a b c d e) = AddressStateRef' x
 --jsonFix x@(BlockDataRef a b c d e f g h i j k l m n o p q) = BlockDataRef' x

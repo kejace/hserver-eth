@@ -61,28 +61,44 @@ getAccountInfoR :: Handler Value
 getAccountInfoR = do
                  getParameters <- reqGetParams <$> getRequest
 
-                 let offset = (fromIntegral $ (maybe 0 id $ extractPage "page" getParameters)  :: Int64)
-                 let index = (fromIntegral $ (maybe 0 id $ extractPage "index" getParameters)  :: Integer)
+                 let offset = fromIntegral $ (maybe 0 id $ extractPage "page" getParameters)  :: Int64
+                 let index = maybe "0000000000000000000000000000000000000000" id $ extractValue "index" getParameters "0000000000000000000000000000000000000000"
+                 let raw    = (fromIntegral $ (maybe 0 id $ extractPage "raw" getParameters) :: Integer) > 0
 
-                 -- liftIO $ traceIO $ "parameters: " P.++ show getParameters
-                 -- liftIO $ traceIO $ "index: " P.++ show index
+                 liftIO $ traceIO $ "parameters: " P.++ show getParameters
+                 liftIO $ traceIO $ "index: " P.++ show index
                  -- liftIO $ traceIO $ "offset: " P.++ show offset
 
                  addHeader "Access-Control-Allow-Origin" "*"
 
                  addrs <- runDB $ E.selectDistinct $
                                         E.from $ \(accStateRef) -> do
-                        
-                                        E.where_ ((P.foldl1 (E.&&.) $ P.map (getAccFilter (accStateRef)) $ getParameters ))
 
-                                        E.offset $ (limit * offset)
+
+                                        let criteria = P.map (getAccFilter (accStateRef)) $ getParameters 
+                                        let allCriteria = ((accStateRef E.^. AddressStateRefAddress) E.>=. E.val (toAddr $ T.pack index)) : criteria
+
+                                        E.where_ (P.foldl1 (E.&&.) allCriteria)
+
+                                        -- E.offset $ (limit * offset)
                                         E.limit $ limit
 
-                                        E.orderBy [E.desc (accStateRef E.^. AddressStateRefBalance)]
+                                        E.orderBy [E.asc (accStateRef E.^. AddressStateRefAddress)]
+                                        --E.orderBy [E.desc (accStateRef E.^. AddressStateRefBalance)]
 
                                         return accStateRef
-                 --liftIO $ traceIO $ "number of results: " P.++ (show $ P.length addrs)
-                 returnJson $ nub $ P.map asrToAsrPrime (P.map entityVal (addrs :: [Entity AddressStateRef])) -- consider removing nub - it takes time n^{2}
-                 where 
-                   limit = (fromIntegral $ fetchLimit :: Int64)
-                  
+
+
+                 let modBlocks = (nub (P.map entityVal (addrs :: [Entity AddressStateRef])))
+                 let newindex = pack $ (getAccNum $ P.last modBlocks) P.++ "0"
+                 let extra p = P.zipWith extraFilter p (P.repeat (newindex))
+                 -- this should actually use URL encoding code from Yesod
+                 let next p = "/query/account?" P.++  (P.foldl1 (\a b -> (unpack a) P.++ "&" P.++ (unpack b)) $ P.map (\(k,v) -> (unpack k) P.++ "=" P.++ (unpack v)) (extra p))
+                 let addedParam = appendIndex getParameters
+
+                 toRet raw modBlocks (next addedParam) -- consider removing nub - it takes time n^{2}
+             where
+                 toRet raw bs gp = case if' raw bs (P.map asrToAsrPrime (P.zip (P.repeat gp) bs)) of 
+                            Left a -> returnJson a
+                            Right b -> returnJson b
+                 limit = (fromIntegral $ fetchLimit :: Int64)

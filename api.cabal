@@ -1,7 +1,7 @@
 name:              api
 version:           0.0.0
 cabal-version:     >= 1.8
-build-type:        Simple
+build-type:        Custom
 
 Flag dev
     Description:   Turn on development settings, like auto-reload templates.
@@ -51,6 +51,7 @@ library
                      Handler.IncludeTransaction,
                      Handler.QueuedTransactions,
                      Handler.PushTransaction
+                     Handler.Stats
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -177,4 +178,4 @@ test-suite test
                  , aeson
                  , blaze-html
                  , blaze-markup
-                 
+                 , timeit

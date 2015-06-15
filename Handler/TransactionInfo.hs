@@ -82,7 +82,7 @@ getTransactionInfoR = do
                                         -- FIXME: if more than `limit` transactions per block, we will need to have a tuple as index
                                         E.where_ (P.foldl1 (E.&&.) allCriteria)
 
-                                        E.offset $ (limit * offset)
+                                        -- E.offset $ (limit * offset)
                                         E.limit $ (limit)
                                         E.orderBy [E.asc (rawTx E.^. RawTransactionBlockNumber), E.asc (rawTx E.^. RawTransactionNonce)]
 
